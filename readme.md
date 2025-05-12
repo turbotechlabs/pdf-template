@@ -1,3 +1,5 @@
+![](example.png)
+
 # Template Class Documentation
 
 A PHP class for generating PDF documents using mPDF with support for Khmer fonts and custom templates.
