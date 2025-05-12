@@ -1,12 +1,12 @@
 {
-    "name": "turbotech/pdf-template",
+    "name": "smarterp-dev/pdf-template",
     "description": "A Laravel package for creating PDF documents using mPDF with Khmer language support",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "your.email@example.com"
+            "name": "PPhat",
+            "email": "info.sophat@gmail.com"
         }
     ],
     "require": {
