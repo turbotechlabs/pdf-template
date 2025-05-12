@@ -1,8 +1,69 @@
-# Turbotech PDF Template
+![](example.png)
 
-A Laravel package for generating PDF documents using mPDF with built-in support for Khmer fonts and responsive layouts.
+# Template Class Documentation
 
-## Installation
+A PHP class for generating PDF documents using mPDF with support for Khmer fonts and custom templates.
+
+## Class Properties
+
+- `$viewDir`: Directory path for view templates
+- `$fontDir`: Directory path for custom fonts
+- `$termDir`: Directory path for temporary files
+- `$views`: Array of default view templates for header, footer, and body
+
+## Methods
+
+### view(string $viewName, array $data = []): string
+Renders a blade template view with provided data.
+
+### config(...$arg): array
+Configures mPDF settings with custom fonts and format options. Handles:
+- Font directories and custom font definitions
+- Page orientation and size settings
+- Script and language handling
+- Default margins and padding
+
+### setHeader($mpdf, $header = null): void
+Sets the HTML header for the mPDF document.
+- `$mpdf`: mPDF instance
+- `$header`: Optional custom HTML header content
+
+### setFooter($mpdf, $footer = null): void
+Sets the HTML footer for the mPDF document.
+- `$mpdf`: mPDF instance
+- `$footer`: Optional custom HTML footer content
+
+### setDraft($mpdf, $draft = null): void
+Applies a watermark to the PDF document.
+- `$mpdf`: mPDF instance
+- `$draft`: Optional custom watermark text (defaults to 'Draft')
+
+### example(Request $request): void
+Generates and outputs a PDF document with configurable:
+- Number of rows and columns
+- Page orientation (L/P)
+- Title and headers
+- Copy/print protection
+
+### useERP(...$args): void
+Generates PDF using ERP template with:
+- Customizable headers and company info
+- Flexible row limits for landscape/portrait
+- Dynamic footer positioning
+- Automatic title generation with timestamp
+
+## Supported Fonts
+
+- khmerosmoullight (Khmer OS Muol Light)
+- khmeroscontent (Khmer OS Content)
+- content (Regular and Bold)
+- timenewroman (Regular, Bold, Italic, Bold Italic)
+- ttstandinvoice (Content Times New Roman)
+
+## Example Usage
+
+
+### Installation
 
 You can install the package via composer:
 
@@ -10,56 +71,43 @@ You can install the package via composer:
 composer require turbotech/pdf-template
 ```
 
-## Usage
+### Usage
 
 ```php
 <?php
 use Turbotech\PDFTemplate\PDFTemplate;
+    Route::get('/pdf', function (Request $request) {
+        $total = 14;
+        $subHeaderTitle = "As Period: 2023 - 2024";
+        $headerTitle = "SUMMARY REPORT ON CASH FLOW FROM OPERATING ACTIVITIES";
 
-// Generate a basic PDF
-PDFTemplate::useERP([
-    'header_title' => 'My Document',
-    'header_company' => 'My Company',
-    'sub_header_title' => 'Period: January 2023',
-    'body' => '<h1>Hello World</h1><p>This is my PDF content</p>'
-]);
+        // Example string Content
+        $content = "Hello World!";
 
-// With custom configuration
-$config = PDFTemplate::config([
-    'margin_top' => 30,
-    'format' => 'A5'
-]);
+        // OR Example HTML Content get from view
+        $content = view('templates.body', [
+            'rows' => $total,
+            'cols' => 20,
+        ]);
 
-// Add watermark
-$mpdf = new \Mpdf\Mpdf($config);
-PDFTemplate::setDraft($mpdf, 'CONFIDENTIAL');
-```
-
-## Configuration
-Publish the configuration file:
-
-```php
-php artisan vendor:publish --provider="Turbotech\PDFTemplate\PDFTemplateServiceProvider" --tag="config"
-```
-
-## Fonts
-
-This package includes several Khmer fonts by default. To publish them to your public directory:
+        // Example:
+        // return Template::example($request);
 
 
-```php
-php artisan vendor:publish --provider="Turbotech\PDFTemplate\PDFTemplateServiceProvider" --tag="fonts"
+        // Use Template
+        return Template::useERP(
+            [
+                'orientation' => 'L', // L = Landscape, P = Portrait
+                'header_company' => 'TURBOTECH CO.,LTD',
+                'header_title' => $headerTitle,
+                'sub_header_title' => $subHeaderTitle,
+                'rows' => $total,
+                'body' => $content,
+            ]
+        );
+
+    });
 ```
 
 ## License
 The MIT License (MIT). Please see License File for more information.
-
-## Create a Git Repository
-
-Initialize a Git repository in your package directory:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-```
