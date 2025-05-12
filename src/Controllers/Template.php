@@ -3,17 +3,16 @@
 namespace Turbotech\PDFTemplate\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
-use Mpdf\MpdfException;
 
 class Template
 {
-    public static $viewDir = __DIR__ . '/../views/example/';
-    public static $fontDir = __DIR__ . '/../fonts/';
-    public static $configDir = __DIR__ . '/../config/pdf-template.php';
-
+    protected static $viewDir = __DIR__ . '/../views/example/';
+    protected static $fontDir = __DIR__ . '/../fonts/';
+    protected static $termDir = __DIR__ . '/../../temp/pdf';
     protected static $views = [
         'header' => 'header.blade.php',
         'footer' => 'footer.blade.php',
@@ -22,7 +21,7 @@ class Template
 
     public static function view(string $viewName, array $data = []): string
     {
-        return view()->file(self::$viewDir . $viewName, $data)->render();
+        return View::file(self::$viewDir . $viewName, $data)->render();
     }
 
     /**
@@ -49,7 +48,7 @@ class Template
     {
         $request = new Request();
         $defaultConfig = (new ConfigVariables())->getDefaults();
-        $fontDirectory = $defaultConfig['fontDir'];
+        $fontDirectory = array_merge($defaultConfig['fontDir'], [self::$fontDir]);
         $defaultFontConfig  = (new FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
 
@@ -60,10 +59,10 @@ class Template
             'format' => $request->format ?: "A4",
             "autoScriptToLang" => true,
             "autoLangToFont" => false,
-            "tempDir" => public_path("/media/mdf"),
+            "tempDir" => self::$termDir,
             "fontDir" => array_merge(
                 $fontDirectory,
-                [public_path('/fonts')]
+                [self::$fontDir]
             ),
             'fontdata' => $fontData + [
                 'khmerosmoullight' => [
@@ -235,8 +234,8 @@ class Template
 
         $mpdf->WriteHTML(
             $header .
-            $body .
-            ($rows >= $rowLimit ? $footer : '')
+                $body .
+                ($rows >= $rowLimit ? $footer : '')
         );
 
         if ($rows < $rowLimit) {
