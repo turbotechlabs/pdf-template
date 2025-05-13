@@ -267,10 +267,13 @@ class Template
             ? ($request->landscapeRowsLimit ?: 16) // ប្រភេទ Landscape ជា Default ១៦ rows ត្រូវ Break
             : ($request->portraitRowsLimit ?: 28); // ប្រភេទ Portrait ជា Default ២៨ rows ត្រូវ Break
 
-        $config = self::config([
-            // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
-            'margin_bottom' => $rows < $rowLimit ? 54 : 15
-        ]);
+        $config = self::config(array_merge(
+            [
+                // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
+                'margin_bottom' => $rows < $rowLimit ? 54 : 15
+            ],
+            ...$args
+        ));
 
         // កំណត់ឈ្មោះ PDF ដែលមានកាលបរិច្ឆេទនិងម៉ោង
         $pdfTitle = $title . "_" . date('dmY_His');
