@@ -68,7 +68,7 @@ Generates PDF using ERP template with:
 You can install the package via composer:
 
 ```bash
-composer require turbotech/pdf-template
+composer require smarterp-dev/pdf-template
 ```
 
 ### Usage
