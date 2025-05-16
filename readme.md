@@ -1,4 +1,4 @@
-![](example.png)
+![](./src//images/pre.png)
 
 # Template Class Documentation
 
@@ -12,6 +12,47 @@ A PHP class for generating PDF documents using mPDF with support for Khmer fonts
 - `$imageDir`: Directory path for images
 - `$defaultHeaderImage`: Default logo image filename
 - `$views`: Array of default view templates for header, footer, and body
+
+## Testing
+
+This package comes with PHPUnit tests to ensure everything is working correctly. To run the tests:
+
+### Prerequisites
+
+Make sure you have installed the development dependencies:
+
+```bash
+composer install --dev
+```
+
+### Running Tests
+
+You can run tests using one of the following methods:
+
+1. Using Composer:
+```bash
+composer test
+```
+
+2. Using the provided batch script (Windows):
+```bash
+run-tests.bat
+```
+
+3. Running PHPUnit directly:
+```bash
+vendor/bin/phpunit
+```
+
+### Test Coverage Report
+
+To generate a test coverage report, run:
+
+```bash
+composer test-coverage
+```
+
+This will generate HTML coverage reports in the `coverage` directory.
 
 ## Methods
 
