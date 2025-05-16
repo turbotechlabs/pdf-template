@@ -1,5 +1,7 @@
 ![](./src//images/pre.png)
 
+[![PHP Tests](https://github.com/turbotechlabs/pdf-template/actions/workflows/run-tests.yml/badge.svg?branch=master)](https://github.com/turbotechlabs/pdf-template/actions/workflows/run-tests.yml)
+
 # Template Class Documentation
 
 A PHP class for generating PDF documents using mPDF with support for Khmer fonts and custom templates.
