@@ -15,59 +15,91 @@ A PHP class for generating PDF documents using mPDF with support for Khmer fonts
 
 ## Testing
 
-This package comes with PHPUnit tests to ensure everything is working correctly. To run the tests:
+This package includes a comprehensive test suite using PHPUnit to verify all functionality works correctly. The tests cover configuration, PDF generation, and font handling to ensure reliability across different environments.
 
 ### Prerequisites
 
-Make sure you have installed the development dependencies:
+Before running tests, make sure you have:
 
-```bash
-composer install --dev
-```
+1. Installed all development dependencies:
+   ```bash
+   composer install
+   ```
+
+2. Created the required temporary directory for mPDF:
+   ```bash
+   mkdir -p temp/pdf
+   ```
 
 ### Running Tests
 
-You can run tests using one of the following methods:
+You can run the test suite using any of these methods:
 
-1. Using Composer:
-```bash
-composer test
-```
+1. Using Composer script (recommended):
+   ```bash
+   composer test
+   ```
 
-2. Using the provided batch script (Windows):
-```bash
-run-tests.bat
-```
+2. Running PHPUnit directly:
+   ```bash
+   vendor/bin/phpunit
+   ```
 
-3. Running PHPUnit directly:
-```bash
-vendor/bin/phpunit
-```
+3. Running specific test suite:
+   ```bash
+   vendor/bin/phpunit --testsuite=Unit
+   ```
+
+4. Running a specific test file:
+   ```bash
+   vendor/bin/phpunit tests/Unit/TemplateTest.php
+   ```
+
+5. Running a specific test method:
+   ```bash
+   vendor/bin/phpunit --filter=it_can_get_config_with_default_values
+   ```
 
 ### Test Coverage Report
 
-To generate a test coverage report, run:
+To generate a detailed HTML test coverage report, run:
 
 ```bash
 composer test-coverage
 ```
 
-This will generate HTML coverage reports in the `coverage` directory.
+This will create HTML reports in the `coverage` directory that you can open in your browser to see which parts of the code are covered by tests.
+
+### Continuous Integration
+
+This package includes GitHub Actions workflow configuration in `.github/workflows/run-tests.yml` that automatically runs tests across multiple PHP versions (7.4, 8.0, 8.1) and Laravel versions (8.*) whenever changes are pushed to the `master` or `develop` branches.
+
+### Extending Tests
+
+When adding new features to the package, please also add corresponding tests to maintain code quality and prevent regressions. Tests should be placed in the appropriate directory:
+
+- Unit tests: `tests/Unit/`
 
 ## Methods
 
 ### view(string $viewName, array $data = []): string
 Renders a blade template view with provided data.
 
+```php
+// Example usage
+$renderedView = Template::view('body.blade.php', ['rows' => 10, 'cols' => 5]);
+```
+
 ### config(...$arg): array
-Configures mPDF settings with custom fonts and format options. Handles:
+Configures mPDF settings with custom fonts and format options.
+
+This method sets up the configuration for mPDF including:
 - Font directories and custom font definitions for Khmer and Latin fonts
 - Page orientation and size settings
 - Script and language handling
 - Temporary directory location
 - Default margins and padding
 
-Example usage:
 ```php
 // Basic usage
 $config = Template::config();
@@ -78,52 +110,103 @@ $config = Template::config(['margin_top' => 30, 'format' => 'A5']);
 
 ### setHeader($mpdf, $header = null, $headerImage = null): void
 Sets the HTML header for the mPDF document.
-- `$mpdf`: mPDF instance to set the header on
+
+- `$mpdf`: The mPDF instance to set the header on
 - `$header`: Optional custom HTML header content. If null, uses default template
-- `$headerImage`: Optional path to the header image. Can be absolute path or relative to imageDir
+- `$headerImage`: Path to the header image (relative to imageDir or absolute)
+
+```php
+// Set default header with custom image
+Template::setHeader($mpdf, null, 'custom-logo.png');
+
+// Set completely custom header HTML
+Template::setHeader($mpdf, '<div>My Custom Header</div>');
+```
 
 ### setFooter($mpdf, $footer = null): void
-Sets the HTML footer for the mPDF document.
-- `$mpdf`: mPDF instance
-- `$footer`: Optional custom HTML footer content. If null, uses default footer template
+Sets the footer for the PDF document.
+
+- `$mpdf`: The mPDF instance
+- `$footer`: Optional HTML footer content. If null, uses default footer template
+
+```php
+// Set default footer
+Template::setFooter($mpdf);
+
+// Set custom footer HTML
+Template::setFooter($mpdf, '<div>Page {PAGENO} of {nbpg}</div>');
+```
 
 ### setDraft($mpdf, $draft = null): void
-Applies a watermark to the PDF document using mPDF.
-- `$mpdf`: mPDF instance
-- `$draft`: Optional custom watermark text (defaults to 'Draft')
-- The watermark uses 'khmerosmoullight' font with 0.1 alpha transparency
+Set watermark text on PDF document.
+
+- `$mpdf`: The mPDF object instance
+- `$draft`: Custom watermark text (optional, defaults to 'Draft')
+
+The watermark uses 'khmerosmoullight' font with 0.1 alpha transparency.
+
+```php
+// Set default "Draft" watermark
+Template::setDraft($mpdf);
+
+// Set custom watermark text
+Template::setDraft($mpdf, 'CONFIDENTIAL');
+```
 
 ### example(Request $request): void
-Generates and outputs a PDF document using mPDF with configurable:
-- Number of rows (default: 14) and columns (default: 20)
-- Page orientation (L/P) (default: 'L')
-- Title (default: 'PDF') and headers
-- Copy/print protection
-- Author and creator metadata
-- Dynamic footer positioning based on row count relative to rowLimit
+Generates and outputs a PDF document using mPDF.
 
-The PDF is directly outputted to the browser with a filename that includes the date and time.
+This method creates a PDF document with configurable margins, title and author.
+It can include header, body content from views, and footer.
+The PDF is directly outputted to the browser with copy and print protection.
 
-Example usage:
+Parameters from Request:
+- `rows`: Number of rows (default: 14)
+- `cols`: Number of columns (default: 20)
+- `header_title`: PDF title (default: 'PDF')
+- `orientation`/`o`: Page orientation L/P (default: 'L')
+- `header_company`: Company name for header (default: 'TURBOTECH CO.,LTD')
+- `sub_header_title`: Period or subtitle text
+- `header_image`: Custom logo path (uses default if not specified)
+
 ```php
 // Basic usage with default title
-$controller->example($request);
+Template::example($request);
 
 // Usage with custom title and orientation
 $request->merge(['header_title' => 'Custom Report', 'orientation' => 'P']);
-$controller->example($request);
+Template::example($request);
 ```
 
 ### useERP(...$args): void
-Generates PDF document using ERP template with:
+Generate PDF document using ERP template.
+
+Similar to `example()` but with more flexibility for ERP usage. Allows:
 - Customizable headers, title, and company info
 - Flexible row limits for landscape/portrait modes (configurable via landscapeRowsLimit/portraitRowsLimit)
 - Dynamic footer positioning based on content length
 - Automatic title generation with timestamp
+- Direct body content provision through 'body' parameter
 - Ability to pass additional parameters through $args to merge with request
 
-The method is similar to example() but intended specifically for ERP template usage 
-with a more streamlined approach for content handling.
+```php
+// Basic usage with HTML content
+Template::useERP([
+    'orientation' => 'L',
+    'header_title' => 'Sales Report',
+    'sub_header_title' => 'Q1 2025',
+    'rows' => 15,
+    'body' => '<table>...</table>',
+    'landscapeRowsLimit' => 20
+]);
+
+// Using with view-rendered content
+$body = view('reports.sales', ['data' => $salesData])->render();
+Template::useERP([
+    'body' => $body,
+    'header_title' => 'Sales Summary'
+]);
+```
 
 ## Supported Fonts
 
