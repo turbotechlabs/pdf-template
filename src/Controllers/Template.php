@@ -13,6 +13,8 @@ class Template
     protected static $viewDir = __DIR__ . '/../views/example/';
     protected static $fontDir = __DIR__ . '/../fonts/';
     protected static $termDir = __DIR__ . '/../../temp/pdf';
+    protected static $imageDir = __DIR__ . '/../images/';
+    protected static $defaultHeaderImage = 'logo.png';
     protected static $views = [
         'header' => 'header.blade.php',
         'footer' => 'footer.blade.php',
@@ -51,7 +53,6 @@ class Template
         $fontDirectory = array_merge($defaultConfig['fontDir'], [self::$fontDir]);
         $defaultFontConfig  = (new FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
-
         $configs = [
             'mode' => '+aCJK',
             "orientation" => $request->orientation ?: "L",
@@ -104,19 +105,29 @@ class Template
      *
      * @param \Mpdf\Mpdf $mpdf The mPDF instance to set the header on
      * @param string|null $header Optional custom HTML header content. If null, uses default template
+     * @param string|null $headerImage Path to the header image (relative to imageDir or absolute)
      * @return void
      */
-    public static function setHeader($mpdf, $header = null)
+    public static function setHeader($mpdf, $header = null, $headerImage = null)
     {
         if ($header) {
             $mpdf->SetHTMLHeader($header);
         } else {
+            // Determine image path - use provided image, default image, or none
+            $imagePath = null;
+            if ($headerImage) {
+                // Check if it's an absolute path or a relative path
+                $imagePath = file_exists($headerImage) ? $headerImage : self::$imageDir . $headerImage;
+            } elseif (file_exists(self::$imageDir . self::$defaultHeaderImage)) {
+                $imagePath = self::$imageDir . self::$defaultHeaderImage;
+            }
             $mpdf->SetHTMLHeader(self::view(self::$views['header'], [
                 'header' => (object)[
                     'company' => 'TURBOTECH CO.,LTD',
                     'title' => 'PDF Title',
                     'period' => 'Period'
-                ]
+                ],
+                'headerImage' => $imagePath
             ]));
         }
     }
@@ -130,10 +141,12 @@ class Template
      */
     public static function setFooter($mpdf, $footer = null)
     {
+        $request = new Request();
+        $isLandscape = $request->orientation == "L" ? true : false;
         if ($footer) {
             $mpdf->SetHTMLFooter($footer);
         } else {
-            $mpdf->SetHTMLFooter(self::view(self::$views['footer']));
+            $mpdf->SetHTMLFooter(self::view(self::$views['footer'], ['isLandscape' => $isLandscape]));
         }
     }
 
@@ -194,8 +207,8 @@ class Template
     {
         $rows = $request->rows ?: 14;
         $cols = $request->cols ?: 20;
-        $title = $request->input('title', 'PDF');
-        $orentation = $request->orientation ?: $request->o ?: "L";
+        $title = $request->input('header_title', 'PDF');
+        $orentation = $request->orientation ?: "L";
         $isLandscape = $orentation == "L" ? true : false;
         $rowLimit = 16;
 
@@ -204,7 +217,8 @@ class Template
         }
 
         $config = self::config([
-            'margin_bottom' => $rows < $rowLimit ? 54 : 15
+            'orientation' => $orentation,
+            'margin_bottom' => $rows < $rowLimit ? ($isLandscape ? 54 : 10) : 14,
         ]);
 
         $pdfTitle = $title . "_R{$rows}C{$cols}" . "_" . date('dmY_His');
@@ -213,24 +227,25 @@ class Template
         $mpdf->SetTitle($pdfTitle);
         $mpdf->SetAuthor(env('APP_NAME'));
         $mpdf->SetCreator(env('APP_NAME'));
-        $mpdf->SetDisplayMode('fullpage');
-        $mpdf->SetProtection(['copy', 'print'], '', 'pass');
+        $mpdf->SetDisplayMode('fullpage');        $mpdf->SetProtection(['copy', 'print'], '', 'pass');
         $mpdf->SetCompression(true);
 
         $header = self::view(self::$views['header'], [
             'header' => (object)[
                 'company' => $request->input('header_company', 'TURBOTECH CO.,LTD'),
                 'title' => $request->input('header_title'),
-                'period' => $request->input('sub_header_title')
-            ]
+                'period' => $request->input('sub_header_title'),
+                'orientation' => $orentation,
+            ],
+            'headerImage' => $request->input('header_image', self::$imageDir . self::$defaultHeaderImage)
         ]);
 
         $body = self::view(self::$views['body'], [
             'rows' => $rows,
-            'cols' => $cols
+            'cols' => $cols,
         ]);
 
-        $footer = self::view(self::$views['footer']);
+        $footer = self::view(self::$views['footer'], ['isLandscape' => $isLandscape]);
 
         $mpdf->WriteHTML(
             $header .
@@ -262,18 +277,17 @@ class Template
         );
         $rows = $request->rows ?: 14;
         $title = $request->header_title ?: 'PDF';
+        $headerImage = $request->input('header_image', self::$imageDir . self::$defaultHeaderImage);
         $orentation = $request->orientation ?: "L";
-        $rowLimit = strtoupper($orentation) === "L"
+        $isLandscape = strtoupper($orentation) === "L" ? true : false;
+        $rowLimit = $isLandscape
             ? ($request->landscapeRowsLimit ?: 16) // ប្រភេទ Landscape ជា Default ១៦ rows ត្រូវ Break
             : ($request->portraitRowsLimit ?: 28); // ប្រភេទ Portrait ជា Default ២៨ rows ត្រូវ Break
 
-        $config = self::config(array_merge(
-            [
-                // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
-                'margin_bottom' => $rows < $rowLimit ? 54 : 15
-            ],
-            ...$args
-        ));
+        $config = self::config([
+            // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
+            'margin_bottom' => $rows < $rowLimit ? ($isLandscape ? 54 : 10) : 14,
+        ]);
 
         // កំណត់ឈ្មោះ PDF ដែលមានកាលបរិច្ឆេទនិងម៉ោង
         $pdfTitle = $title . "_" . date('dmY_His');
@@ -290,12 +304,16 @@ class Template
             'header' => (object)[
                 'company' => $request->input('header_company', 'TURBOTECH CO.,LTD'),
                 'title' => $request->input('header_title'),
-                'period' => $request->input('sub_header_title')
-            ]
+                'period' => $request->input('sub_header_title'),
+                'orientation' => $orentation,
+            ],
+            'headerImage' => $headerImage
         ]);
 
         $body = $request->body ?: "";
-        $footer = $rows >= $rowLimit ? self::view(self::$views['footer']) : '';
+        $footer = $rows >= $rowLimit
+            ? self::view(self::$views['footer'], ['isLandscape' => $isLandscape])
+            : '';
         $mpdf->WriteHTML($header . $body . $footer);
 
         if ($rows < $rowLimit) {

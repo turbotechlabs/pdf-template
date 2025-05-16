@@ -1,5 +1,5 @@
 
-<table style="width:100%; margin-left: 0; margin-right: 0; margin-top: 2rem; margin-bottom: 2rem; border: thin solid white; border-collapse: collapse; font-family: 'ttstandinvoice';">
+<table style="width:100%; margin-left: 0; margin-right: 0; margin-top: 0rem; margin-bottom: 1rem; border: thin solid white; border-collapse: collapse; font-family: 'ttstandinvoice';">
 
     <tr>
         @for ($i = 0; $i < $cols; $i++)
