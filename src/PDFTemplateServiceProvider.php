@@ -22,10 +22,10 @@ class PDFTemplateServiceProvider extends ServiceProvider
     {
         // Publish views
         $this->publishes([
-            __DIR__ . '/../views/example/' => resource_path('views/pdf-template'),
-        ], 'views');
+            __DIR__.'/views' => resource_path('views/vendor/pdf-template'),
+        ], 'pdf-template-views');
 
-        // Load views
-        // $this->loadViewsFrom(__DIR__ . '/../src/views/ex', 'pdf-template');
+        // Load package views
+        $this->loadViewsFrom(__DIR__.'/views', 'pdf-template');
     }
 }
