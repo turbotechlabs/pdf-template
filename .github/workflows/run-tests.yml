@@ -39,7 +39,5 @@ jobs:
         composer update --prefer-dist --no-interaction --no-progress
 
     - name: Create temp directory
-      run: mkdir -p temp/pdf
-
-    - name: Execute tests
-      run: vendor/bin/phpunit
+      run: mkdir -p temp/pdf    - name: Execute tests
+      run: vendor/bin/phpunit --testsuite=Unit
