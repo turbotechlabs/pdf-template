@@ -2,7 +2,6 @@
 
 namespace Turbotech\PDFTemplate\Tests\Unit;
 
-use Turbotech\Facades\PDFTemplate;
 use Turbotech\PDFTemplate\Facades\PDFTemplate as FacadesPDFTemplate;
 use Turbotech\PDFTemplate\Tests\TestCase;
 

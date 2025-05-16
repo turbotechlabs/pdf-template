@@ -2,7 +2,6 @@
 
 namespace Turbotech\PDFTemplate\Tests\Unit;
 
-use Illuminate\Http\Request;
 use Mockery;
 use Turbotech\PDFTemplate\Controllers\Template;
 use Turbotech\PDFTemplate\Tests\TestCase;
