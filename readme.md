@@ -8,12 +8,17 @@ A PHP class for generating PDF documents using mPDF with support for Khmer fonts
 
 ## Class Properties
 
-- `$viewDir`: Directory path for view templates
-- `$fontDir`: Directory path for custom fonts
-- `$termDir`: Directory path for temporary files
-- `$imageDir`: Directory path for images
-- `$defaultHeaderImage`: Default logo image filename
-- `$views`: Array of default view templates for header, footer, and body
+The Template class contains several protected static properties that define the package structure:
+
+- `$viewDir`: Directory path for view templates (`__DIR__ . '/../views/example/'`)
+- `$fontDir`: Directory path for custom fonts (`__DIR__ . '/../fonts/'`)
+- `$termDir`: Directory path for temporary files (`__DIR__ . '/../../temp/pdf'`)
+- `$imageDir`: Directory path for images (`__DIR__ . '/../images/'`)
+- `$defaultHeaderImage`: Default logo image filename (`'logo.png'`)
+- `$views`: Array of default view templates:
+  - `'header'` → `'header.blade.php'`
+  - `'footer'` → `'footer.blade.php'`
+  - `'body'` → `'body.blade.php'`
 
 ## Testing
 
@@ -93,14 +98,19 @@ $renderedView = Template::view('body.blade.php', ['rows' => 10, 'cols' => 5]);
 ```
 
 ### config(...$arg): array
-Configures mPDF settings with custom fonts and format options.
+Configures the PDF settings for mPDF.
 
-This method sets up the configuration for mPDF including:
+This static method sets up the configuration for mPDF, including font directories, 
+default fonts, page orientation, and other parameters. It merges any additional 
+arguments provided into the configuration array.
+
+Features:
 - Font directories and custom font definitions for Khmer and Latin fonts
-- Page orientation and size settings
-- Script and language handling
-- Temporary directory location
-- Default margins and padding
+- Page orientation and size settings (supports A4, custom formats)
+- Script and language handling (+aCJK mode for Asian languages)
+- Temporary directory location configuration
+- Default margins and padding settings
+- Custom font data including Khmer fonts with OpenType Layout support
 
 ```php
 // Basic usage
@@ -108,21 +118,36 @@ $config = Template::config();
 
 // With custom overrides
 $config = Template::config(['margin_top' => 30, 'format' => 'A5']);
+
+// Multiple configuration arrays
+$config = Template::config(
+    ['orientation' => 'P'],
+    ['margin_bottom' => 20, 'default_font' => 'timenewroman']
+);
 ```
 
 ### setHeader($mpdf, $header = null, $headerImage = null): void
-Sets the HTML header for the mPDF document.
+Sets the header for the PDF document.
 
-- `$mpdf`: The mPDF instance to set the header on
-- `$header`: Optional custom HTML header content. If null, uses default template
-- `$headerImage`: Path to the header image (relative to imageDir or absolute)
+- `$mpdf`: The mPDF instance
+- `$header`: Optional HTML header content. If null, uses default header template
+- `$headerImage`: Optional path to a header image. If null, uses default image
+
+This method handles automatic image path resolution - it checks if the provided path 
+is absolute, falls back to the package's image directory, or uses the default logo.
 
 ```php
+// Set default header with package's default logo
+Template::setHeader($mpdf);
+
 // Set default header with custom image
 Template::setHeader($mpdf, null, 'custom-logo.png');
 
 // Set completely custom header HTML
-Template::setHeader($mpdf, '<div>My Custom Header</div>');
+Template::setHeader($mpdf, '<div style="text-align: center;">My Custom Header</div>');
+
+// Set custom header with specific image path
+Template::setHeader($mpdf, null, '/absolute/path/to/logo.png');
 ```
 
 ### setFooter($mpdf, $footer = null): void
@@ -156,40 +181,73 @@ Template::setDraft($mpdf, 'CONFIDENTIAL');
 ```
 
 ### example(Request $request): void
-Generates and outputs a PDF document using mPDF.
+Generate a PDF document with example content.
 
-This method creates a PDF document with configurable margins, title and author.
-It can include header, body content from views, and footer.
-The PDF is directly outputted to the browser with copy and print protection.
+This static method creates a PDF based on the provided request parameters, 
+allowing customization of rows, columns, header title, and orientation. 
+It supports both landscape and portrait orientations with dynamic row limits.
+
+Features:
+- Dynamic row limit calculation (16 for landscape, 28 for portrait)
+- Automatic margin adjustment based on content length
+- Copy and print protection with password 'pass'
+- PDF compression enabled
+- Automatic filename generation with timestamp
+- Dynamic footer placement logic
 
 Parameters from Request:
 - `rows`: Number of rows (default: 14)
 - `cols`: Number of columns (default: 20)
 - `header_title`: PDF title (default: 'PDF')
-- `orientation`/`o`: Page orientation L/P (default: 'L')
+- `orientation`: Page orientation L/P (default: 'L')
 - `header_company`: Company name for header (default: 'TURBOTECH CO.,LTD')
 - `sub_header_title`: Period or subtitle text
 - `header_image`: Custom logo path (uses default if not specified)
 
 ```php
-// Basic usage with default title
+// Basic usage with default settings
 Template::example($request);
 
-// Usage with custom title and orientation
-$request->merge(['header_title' => 'Custom Report', 'orientation' => 'P']);
+// Usage with custom parameters
+$request->merge([
+    'header_title' => 'Monthly Sales Report',
+    'orientation' => 'P',
+    'rows' => 20,
+    'cols' => 8,
+    'header_company' => 'My Company Ltd.',
+    'sub_header_title' => 'January 2025'
+]);
 Template::example($request);
 ```
 
 ### useERP(...$args): void
-Generate PDF document using ERP template.
+Generate a PDF document using ERP template settings.
 
-Similar to `example()` but with more flexibility for ERP usage. Allows:
-- Customizable headers, title, and company info
-- Flexible row limits for landscape/portrait modes (configurable via landscapeRowsLimit/portraitRowsLimit)
-- Dynamic footer positioning based on content length
-- Automatic title generation with timestamp
+This static method creates a PDF based on configuration settings and content provided 
+via the request or additional arguments. It supports both landscape and portrait orientations 
+with dynamic row limits.
+
+Features:
+- Allows additional parameter merging through variadic arguments
+- Customizable header with company name, title, and image
+- Automatic page orientation handling (landscape/portrait)
+- Dynamic margin adjustment based on content length
+- Automatic footer placement logic
+- PDF metadata (title, author, creator)
+- Configurable row limits for different orientations
 - Direct body content provision through 'body' parameter
-- Ability to pass additional parameters through $args to merge with request
+
+Parameters:
+- `...$args`: Additional parameters to merge with the current request
+- `body`: HTML content for the PDF body
+- `header_title`: PDF title (default: 'PDF')
+- `header_company`: Company name (default: 'TURBOTECH CO.,LTD')
+- `sub_header_title`: Period or subtitle text
+- `header_image`: Custom logo path
+- `orientation`: Page orientation L/P (default: 'L')
+- `rows`: Number of rows for dynamic footer logic (default: 14)
+- `landscapeRowsLimit`: Custom row limit for landscape mode (default: 16)
+- `portraitRowsLimit`: Custom row limit for portrait mode (default: 28)
 
 ```php
 // Basic usage with HTML content
@@ -198,7 +256,7 @@ Template::useERP([
     'header_title' => 'Sales Report',
     'sub_header_title' => 'Q1 2025',
     'rows' => 15,
-    'body' => '<table>...</table>',
+    'body' => '<table><tr><td>Sales Data</td></tr></table>',
     'landscapeRowsLimit' => 20
 ]);
 
@@ -206,17 +264,40 @@ Template::useERP([
 $body = view('reports.sales', ['data' => $salesData])->render();
 Template::useERP([
     'body' => $body,
-    'header_title' => 'Sales Summary'
+    'header_title' => 'Sales Summary',
+    'header_company' => 'ABC Corporation',
+    'orientation' => 'P',
+    'portraitRowsLimit' => 30
 ]);
+
+// Multiple parameter arrays
+Template::useERP(
+    ['orientation' => 'L', 'header_title' => 'Report'],
+    ['body' => $htmlContent, 'rows' => 25]
+);
 ```
 
 ## Supported Fonts
 
-- khmerosmoullight (Khmer OS Muol Light)
-- khmeroscontent (Khmer OS Content)
-- content (Regular and Bold)
-- timenewroman (Regular, Bold, Italic, Bold Italic)
-- ttstandinvoice (Content Times New Roman)
+The package includes comprehensive font support for both Khmer and Latin scripts:
+
+### Khmer Fonts
+- **khmerosmoullight** - Khmer OS Muol Light (`Khmer-OS-Muol-Light.ttf`)
+- **khmeroscontent** - Khmer OS Content (`KhmerOS_content.ttf`)
+
+### Latin Fonts  
+- **content** - Content Regular and Bold (`Content-Regular.ttf`, `Content-Bold.ttf`)
+- **timenewroman** - Complete Times New Roman family:
+  - Regular (`times_new_roman.ttf`)
+  - Bold (`times_new_roman_bold.ttf`) 
+  - Italic (`times_new_roman_italic.ttf`)
+  - Bold Italic (`times_new_roman_bold_italic.ttf`)
+- **ttstandinvoice** - Content Times New Roman OpenType (`Content-TimesNewRoman.otf`)
+
+### Default Configuration
+- **Default font**: `georgia`
+- **OpenType Layout (OTL)**: Enabled for all custom fonts (`useOTL => 0xFF`)
+- **Mode**: `+aCJK` for Asian, Chinese, Japanese, Korean language support
 
 ## Example Usage
 
@@ -237,51 +318,87 @@ use Illuminate\Http\Request;
 
 Route::get('/pdf', function (Request $request) {
     $total = 14;
-    $subHeaderTitle = "As Period: 2023 - 2024";
+    $subHeaderTitle = "As Period: 2024 - 2025";
     $headerTitle = "SUMMARY REPORT ON CASH FLOW FROM OPERATING ACTIVITIES";
 
-    // Example 1: Use the example method
-    // return Template::example($request);
-
-    // Example 2: Use the useERP method with string content
-    $content = "Hello World!";
-    
-    // Example 3: Use the useERP method with view content
-    $content = view('templates.body', [
+    // Example 1: Use the example method for predefined template
+    return Template::example($request->merge([
+        'header_title' => $headerTitle,
+        'sub_header_title' => $subHeaderTitle,
         'rows' => $total,
         'cols' => 20,
-    ]);
+        'orientation' => 'L'
+    ]));
 
-    // Use Template with useERP method
+    // Example 2: Use the useERP method with HTML content
+    $htmlContent = '<div><h2>Financial Summary</h2><p>Content here...</p></div>';
+    
     return Template::useERP([
         'orientation' => 'L', // L = Landscape, P = Portrait
         'header_company' => 'TURBOTECH CO.,LTD',
         'header_title' => $headerTitle,
         'sub_header_title' => $subHeaderTitle,
         'rows' => $total,
-        'body' => $content,
+        'body' => $htmlContent,
         'header_image' => public_path('images/logo.png'), // customize logo
         'landscapeRowsLimit' => 16, // customize row limit for landscape mode
         'portraitRowsLimit' => 28, // customize row limit for portrait mode
+    ]);
+
+    // Example 3: Use the useERP method with view-rendered content
+    $content = view('templates.financial-report', [
+        'rows' => $total,
+        'cols' => 20,
+        'data' => $financialData
+    ])->render();
+
+    return Template::useERP([
+        'body' => $content,
+        'header_title' => $headerTitle,
+        'orientation' => 'P'
     ]);
 });
 ```
 
 ### Configuring PDF Settings
 
-You can customize the PDF configuration:
+You can customize the PDF configuration using the config method:
 
 ```php
+// Basic configuration
+$config = Template::config();
+
+// Custom configuration with overrides
 $config = Template::config([
     'orientation' => 'P',
     'format' => 'A5',
     'margin_top' => 30,
     'margin_left' => 20,
     'margin_right' => 20,
+    'default_font' => 'timenewroman'
 ]);
 
+// Multiple configuration arrays
+$config = Template::config(
+    ['orientation' => 'L'],
+    ['margin_bottom' => 25, 'padding_header' => 80]
+);
+
+// Use with mPDF
 $mpdf = new \Mpdf\Mpdf($config);
 ```
+
+### Available Configuration Options
+
+- `orientation`: Page orientation ('L' for landscape, 'P' for portrait)
+- `format`/`page_size`: Page format (default: 'A4')
+- `margin_top`: Top margin (default: 28.346456693)
+- `margin_left`: Left margin (default: 15)
+- `margin_right`: Right margin (default: 15)
+- `margin_bottom`: Bottom margin (calculated dynamically)
+- `default_font`: Default font (default: 'georgia')
+- `padding_header`: Header padding (default: 100)
+- `tempDir`: Temporary directory for mPDF files
 
 ### Adding Watermarks
 
