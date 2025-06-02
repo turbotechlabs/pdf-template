@@ -27,24 +27,14 @@ class Template
     }
 
     /**
-     * Configure mPDF settings with custom fonts and format options
+     * Configures the PDF settings for mPDF.
      *
-     * This method sets up the configuration for mPDF including:
-     * - Font directories and custom font definitions for Khmer and Latin fonts
-     * - Page orientation and size settings
-     * - Script and language handling
-     * - Temporary directory location
-     * - Default margins and padding
+     * This static method sets up the configuration for mPDF, including font directories,
+     * default fonts, page orientation, and other parameters. It merges any additional
+     * arguments provided into the configuration array.
      *
-     * @param array ...$arg Variable number of config arrays to merge with default settings
-     * @return array The complete merged configuration array
-     *
-     * @example
-     * // Basic usage
-     * $config = Template::config();
-     *
-     * // With custom overrides
-     * $config = Template::config(['margin_top' => 30, 'format' => 'A5']);
+     * @param mixed ...$arg Additional configuration parameters to merge
+     * @return array The complete configuration array for mPDF
      */
     public static function config(...$arg): array
     {
@@ -101,11 +91,11 @@ class Template
     }
 
     /**
-     * Sets the HTML header for the mPDF document.
+     * Sets the header for the PDF document
      *
-     * @param \Mpdf\Mpdf $mpdf The mPDF instance to set the header on
-     * @param string|null $header Optional custom HTML header content. If null, uses default template
-     * @param string|null $headerImage Path to the header image (relative to imageDir or absolute)
+     * @param \Mpdf\Mpdf $mpdf The mPDF instance
+     * @param string|null $header Optional HTML header content. If null, uses default header template
+     * @param string|null $headerImage Optional path to a header image. If null, uses default image
      * @return void
      */
     public static function setHeader($mpdf, $header = null, $headerImage = null)
@@ -177,31 +167,19 @@ class Template
     }
 
     /**
-     * Generates and outputs a PDF document using mPDF.
+     * Generate a PDF document with example content.
      *
-     * This method creates a PDF document with configurable margins, title and author.
-     * It can include header, body content from views, and footer.
-     * The PDF is directly outputted to the browser with copy and print protection.
+     * This static method creates a PDF based on the provided request parameters,
+     * allowing customization of rows, columns, header title, and orientation.
+     * It supports both landscape and portrait orientations with dynamic row limits.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request instance containing:
-     *        - rows: Number of rows (default: 14)
-     *        - cols: Number of columns (default: 20)
-     *        - title: PDF title (default: 'PDF')
-     *        - orientation/o: Page orientation L/P (default: 'L')
-     * @return \Illuminate\Http\Response Streams PDF to browser
-     * @throws \Mpdf\MpdfException When PDF generation fails
+     * @param Request $request The HTTP request containing parameters for PDF generation
+     * @return void The method outputs the PDF directly to the browser with 'inline' disposition
      *
-     * @example
-     * // Basic usage with default title
-     * $controller->index($request);
-     *
-     * // Usage with custom title and orientation
-     * $request->merge(['title' => 'Custom Report', 'orientation' => 'P']);
-     * $controller->index($request);
-     *
-     * @uses \Mpdf\Mpdf For PDF generation
-     * @uses view() For rendering template views
-     * @uses env() For getting application name
+     * @uses Mpdf For PDF generation
+     * @uses self::config() To set up PDF configuration
+     * @uses self::view() To render template views
+     * @uses self::setFooter() To apply footer when content is below row limit
      */
     public static function example(Request $request)
     {
@@ -227,7 +205,8 @@ class Template
         $mpdf->SetTitle($pdfTitle);
         $mpdf->SetAuthor(env('APP_NAME'));
         $mpdf->SetCreator(env('APP_NAME'));
-        $mpdf->SetDisplayMode('fullpage');        $mpdf->SetProtection(['copy', 'print'], '', 'pass');
+        $mpdf->SetDisplayMode('fullpage');
+        $mpdf->SetProtection(['copy', 'print'], '', 'pass');
         $mpdf->SetCompression(true);
 
         $header = self::view(self::$views['header'], [
@@ -262,10 +241,27 @@ class Template
     }
 
     /**
-     * Generate PDF document using ERP template
+     * Generate a PDF document using ERP template settings.
      *
-     * @param array ...$args Additional parameters to merge with request
-     * @return void
+     * This static method creates a PDF based on configuration settings and content provided
+     * via the request or additional arguments. It supports both landscape and portrait orientations
+     * with dynamic row limits.
+     *
+     * Features:
+     * - Allows additional parameter merging through variadic arguments
+     * - Customizable header with company name, title, and image
+     * - Automatic page orientation handling (landscape/portrait)
+     * - Dynamic margin adjustment based on content length
+     * - Automatic footer placement logic
+     * - PDF metadata (title, author, creator)
+     *
+     * @param array ...$args Additional parameters to merge with the current request
+     * @return void The method outputs the PDF directly to the browser with 'inline' disposition
+     *
+     * @uses Mpdf For PDF generation
+     * @uses self::config() To set up PDF configuration
+     * @uses self::view() To render template views
+     * @uses self::setFooter() To apply footer when content is below row limit
      */
     public static function useERP(...$args)
     {
@@ -287,6 +283,7 @@ class Template
         $config = self::config([
             // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
             'margin_bottom' => $rows < $rowLimit ? ($isLandscape ? 54 : 10) : 14,
+            'orientation' => $orentation,
         ]);
 
         // កំណត់ឈ្មោះ PDF ដែលមានកាលបរិច្ឆេទនិងម៉ោង
