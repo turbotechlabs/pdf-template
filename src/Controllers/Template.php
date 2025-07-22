@@ -19,7 +19,18 @@ class Template
         'header' => 'header.blade.php',
         'footer' => 'footer.blade.php',
         'body' => 'body.blade.php',
+        'quotation-example' => 'quotation-example.blade.php',
     ];
+
+    public static function getViewDir(): string
+    {
+        return __DIR__ . '/../views/';
+    }
+
+    public static function getTemplateDir(): string
+    {
+        return self::getViewDir() . 'templates/';
+    }
 
     public static function view(string $viewName, array $data = []): string
     {
