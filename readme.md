@@ -105,9 +105,6 @@ The package will automatically register its service provider. No manual configur
 
 Refer to [docs/pdf.md](docs/pdf.md) and [docs/template.md](docs/template.md) for usage examples and API documentation.
 
----
-
-For more details, see [Packagist: smarterp-dev/pdf-template](https://packagist.org/packages/smarterp-dev/pdf-template)
 
 ## License
 
