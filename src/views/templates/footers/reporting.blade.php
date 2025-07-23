@@ -1,42 +1,86 @@
 @php
-    $isLanscape = strtoupper($header->orientation) == 'L';
-    $titleLength = strlen($header->title ?? '');
-
-    $lineHeight = 35;
-    $marginTop = -5;
-
-    $companySize = 20;
-    $titleSize = 16;
-    $periodSize = 14;
-
-    if (!$isLanscape) {
-        $lineHeight = $titleLength > 35 ? 28 : 35;
-        $marginTop = $titleLength > 35 ? -4.8 : -5;
-
-        // $companySize = $titleLength > 35 ? 18 : 20;
-        // $titleSize = $titleLength > 35 ? 14 : 16;
-        // $periodSize = $titleLength > 35 ? 12 : 14;
-    }
-
+    $params = (object) $data;
+    $isLandscape = strtoupper($params->orientation) == 'L';
+    $titleLength = strlen($params->title ?? '');
+    $fontSize = $isLandscape ? 12 : 11;
+    $width = $isLandscape ? 10 : 8; // REM
+    $marginLeft = $isLandscape ? 3.5 : 1.5; // REM
+    $marginBottom = $isLandscape ? 0.2 : 0.75; // REM
 @endphp
-<table style="width:100%; margin-top: 20rem; margin-bottom: 0.75rem;">
-    <tr>
-        <td style="width: 20%; text-align: center;">
-            @if(isset($headerImage) && $headerImage)
-            <img style="width: 190px; margin-top:-80px; margin-left:-5px" src="{{ $headerImage }}" />
-            @endif
-        </td>
 
-        <td style="width:80%;">
-            <table style="width:100%; text-align:center; margin-right: 10rem; margin-top: {{ $marginTop }}rem;">
-                <tr style="width:100%;text-align:center;">
-                    <td style="text-align:center;width:100%; line-height: 24px;">
-                        <h1 style="font-size:{{ $companySize }}px; font-weight: bold">{{ $header->company ?? '' }}</h1>
-                        <h2 style="font-size:{{ $titleSize }}px; font-weight: bold;">{{ $header->title ?? '' }}</h2>
-                        <h3 style="font-size:{{ $periodSize }}px; font-weight: bold">{{ $header->period ?? '' }}</h3>
-                    </td>
+
+<table style="width: 100%; margin-bottom: {{ $marginBottom }}rem; font-size: {{ $fontSize }}px; ">
+    <tr>
+        <td style="text-align: center;">
+            <h3 style="font-size: 12px;"> Prepared By </h3>
+            <table style="width: 100%; text-align: left; margin-top: 6rem; margin-left: {{ $marginLeft }}rem; font-family: 'ttstandinvoice';">
+                <tr>
+                    <td style="width: 5rem;">Name :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Position :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Date :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
                 </tr>
             </table>
-        </td>
+        </th>
+
+        <td style="text-align: center;">
+            <h3 style="font-size: 12px;"> Checked By </h3>
+            <table style="width: 100%; text-align: left; margin-top: 6rem; margin-left: {{ $marginLeft }}rem; font-family: 'ttstandinvoice';">
+                <tr>
+                    <td style="width: 5rem;">Name :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Position :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Date :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+            </table>
+        </th>
+
+        <td style="text-align: center;">
+            <h3 style="font-size: 12px;"> Verified By </h3>
+            <table style="width: 100%; text-align: left; margin-top: 6rem; margin-left: {{ $marginLeft }}rem; font-family: 'ttstandinvoice';">
+                <tr>
+                    <td style="width: 5rem;">Name :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Position :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Date :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+            </table>
+        </th>
+
+        <td style="text-align: center;">
+            <h3 style="font-size: 12px;"> Approved By </h3>
+            <table style="width: 100%; text-align: left; margin-top: 6rem; margin-left: {{ $marginLeft }}rem; font-family: 'ttstandinvoice';">
+                <tr>
+                    <td style="width: 5rem;">Name :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Position :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5rem;">Date :</td>
+                    <td colspan="5" style="width: {{ $width }}rem;"></td>
+                </tr>
+            </table>
+        </th>
     </tr>
 </table>

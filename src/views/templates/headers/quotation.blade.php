@@ -1,14 +1,14 @@
 @php
-    $params = (object) $params;
-    $isLanscape = strtoupper(($params->orientation ?? "")) === 'L';
-    $titleLength = strlen($params->title ?? '');
+    $params = (object) $data;
+    $isLanscape = strtoupper(($data->orientation ?? "")) === 'L';
+    $titleLength = strlen($data->title ?? '');
     $marginTop = -5;
 
     if (!$isLanscape) {
         $marginTop = $titleLength > 35 ? -4.8 : -5;
     }
 
-    $logo = $params->logo ?? null;
+    $logo = $params->headerImage ?? null;
 
     $company = (object) array_merge(
         (array)[
@@ -41,7 +41,6 @@
     );
 @endphp
 
-
 <table style="width:100%; margin-top: 20rem; margin-bottom: 0.75rem;">
     <tr>
         <td style="text-align: center;">
@@ -51,7 +50,7 @@
         </td>
 
         <td style="width: 750px">
-            <table style="margin-top: {{ $marginTop }}rem; width: 850px; margin-left: 10px; text-align:left; border-collapse: collapse;">
+            <table style="margin-top: {{ $marginTop }}rem; width: 100%; margin-left: 10px; text-align:left; border-collapse: collapse;">
                 <tr>
                     <td style="min-width: 210px; line-height: 20px">
                         <h1 style="font-size: 16px; font-weight: bold;">{{ $company->name ?? 'TURBOTECH CO., LTD.' }}</h1>
@@ -81,6 +80,6 @@
     </tr>
 </table>
 
-<div class="rounded-box" style="width: 100%; font-size: 12px; font-weight: bold;">
+<div class="rounded-box" style="width: 100%; font-size: 12px; font-weight: bold; margin-bottom: 1rem;">
     {{ strtoupper($params->title ?? 'Quotation') }}
 </div>

@@ -1,4 +1,5 @@
 @php
+    $header = (object)$data;
     $isLanscape = strtoupper($header->orientation) == 'L';
     $titleLength = strlen($header->title ?? '');
 
@@ -17,6 +18,8 @@
         // $titleSize = $titleLength > 35 ? 14 : 16;
         // $periodSize = $titleLength > 35 ? 12 : 14;
     }
+
+    $headerImage = $header->headerImage ?? null;
 
 @endphp
 <table style="width:100%; margin-top: 20rem; margin-bottom: 0.75rem;">
