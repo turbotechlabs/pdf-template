@@ -124,9 +124,7 @@ class Quotation extends Template
         $rows = request()->get('rows', 14);
         $cols = request()->get('cols', 20);
         $title = request()->input('header_title', 'PDF');
-        $orentation = request()->get('orientation', request()->get('o', "L"));
-
-
+        $orentation = request()->get('orientation', request()->get('o', "P"));
         $isLandscape = $orentation == "L" ? true : false;
         $rowLimit = 16;
 
@@ -135,7 +133,8 @@ class Quotation extends Template
         }
 
         $config = self::config([
-            'orientation' => $orentation,
+            'format' => request()->get('format', 'A4'),
+            'orientation' => "p",
             'margin_bottom' => $rows < $rowLimit ? ($isLandscape ? 54 : 10) : 14,
         ]);
 

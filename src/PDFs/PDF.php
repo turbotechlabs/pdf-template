@@ -1,0 +1,438 @@
+<?php
+
+namespace Turbotech\PDFTemplate\PDFs;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
+use Mpdf\Mpdf;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+
+class PDF
+{
+    protected Request $request;
+    protected object $options;
+
+    public function __construct(array $options = [])
+    {
+        $this->request = new Request();
+        $this->request->merge([
+            "companyName" => $this->request->get('companyName', 'TURBOTECH CO., LTD.'),
+            "author" => $this->request->get('author', 'Turbotech PDF Template'),
+            "creator" => $this->request->get('creator', 'SmartERP'),
+            "title" => $this->request->get('title', 'PDF'),
+            "titleDateFormat" => $this->request->get('titleDateFormat', 'dmY_His'),
+            "orientation" => $options['orientation'] ?? $this->request->get('orientation', 'L'),
+        ]);
+
+        $this->options = (object) array_merge(
+            $this->request->all(),
+            $options,
+        );
+    }
+
+    /**
+     * Get the configuration for the PDF.
+     *
+     * @param mixed ...$arg
+     * @return array
+     */
+    public function config(...$arg): array
+    {
+        $options = $this->options;
+        $defaultConfig = (new ConfigVariables())->getDefaults();
+        $fontDirectory = array_merge(
+            $defaultConfig['fontDir'],
+            [$this->getFontDir()]
+        );
+        $defaultFontConfig  = (new FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+        $configs = [
+            'mode' => '+aCJK',
+            'orientation' => $options->orientation ?? 'L',
+            'page_size' => $options->page_size ?? 'A4',
+            'format' => $options->format ?? 'A4',
+            'autoScriptToLang' => true,
+            'autoLangToFont' => false,
+            'tempDir' => $this->getFileTempDir(),
+            'fontDir' => $fontDirectory,
+            'fontdata' => $fontData + [
+                'khmerosmoullight' => [
+                    'R' => 'Khmer-OS-Muol-Light.ttf',
+                    'useOTL' => 0xFF,
+                ],
+                'khmeroscontent' => [
+                    'R' => 'KhmerOS_content.ttf',
+                    'useOTL' => 0xFF,
+                ],
+                'content' => [
+                    'R' => 'Content-Regular.ttf',
+                    'B' => 'Content-Bold.ttf',
+                    'useOTL' => 0xFF,
+                ],
+                'timenewroman' => [
+                    'R' => 'times_new_roman.ttf',
+                    'B' => 'times_new_roman_bold.ttf',
+                    'I' => 'times_new_roman_italic.ttf',
+                    'BI' => 'times_new_roman_bold_italic.ttf',
+                    'useOTL' => 0xFF,
+                ],
+                'ttstandinvoice' => [
+                    'R' => 'Content-TimesNewRoman.otf',
+                    'useOTL' => 0xFF
+                ],
+            ],
+            'default_font' => $options->default_font ?? 'georgia',
+            'padding_header' => 100,
+            'margin_top' => 28.346456693,
+            'margin_left' => 15,
+            'margin_right' => 15
+        ];
+
+        // Merge all arguments as overrides
+        $overrides = [];
+        foreach ($arg as $a) {
+            if (is_array($a)) {
+                $overrides = array_merge($overrides, $a);
+            }
+        }
+        return array_replace($configs, $overrides);
+    }
+
+    /**
+     * Get the temporary directory for PDF files.
+     * @param options->tempDir
+     * @return string
+     */
+    public function getFileTempDir(): string
+    {
+        return $this->options->tempDir ?? __DIR__ . '/../../temp/pdf';
+    }
+
+    /**
+     * Get the font directory.
+     * @param options->fontDir
+     * @return string
+     */
+    public function getFontDir(): string
+    {
+        return $this->options->fontDir ?? __DIR__ . '/../fonts/';
+    }
+
+    /**
+     * Get the image directory.
+     * @param options->imageDir
+     * @return string
+     */
+    public function getImageDir(): string
+    {
+        return $this->options->imageDir ?? __DIR__ . '/../images/';
+    }
+
+    /**
+     * Get the views directory.
+     * @param options->views
+     * @return string
+     */
+    public function getViewsDir(): string
+    {
+        return $this->options->views ?? __DIR__ . '/../views/';
+    }
+
+    /**
+     * Get the view templates directory.
+     * @param options->viewTemplates
+     * @return string
+     */
+    public function getViewTemplatesDir(): string
+    {
+        return $this->options->viewTemplates ?? __DIR__ . '/../views/templates/';
+    }
+
+    /**
+     * Get the view template by name.
+     * @param string $name
+     * @return string
+     */
+    public function getViewTemplateByName(string $name): string
+    {
+        $name = strtolower($name);
+        return "{$this->getViewTemplatesDir()}{$name}.blade.php";
+    }
+
+    /**
+     * Get the view examples directory.
+     * @param options->viewExamples
+     * @return string
+     */
+    public function getViewExamplesDir(): string
+    {
+        return $this->options->viewExamples ?? __DIR__ . '/../views/example/';
+    }
+
+    /**
+     * Get the view examples by name.
+     * @param string $name
+     * @return string
+     */
+    public function getViewExamplesByName(string $name): string
+    {
+        $name = strtolower($name);
+        return "{$this->getViewExamplesDir()}{$name}.blade.php";
+    }
+
+
+    /**
+     * Get logo path.
+     *
+     * @param options->logo
+     * @return string
+     */
+    public function logo(): string
+    {
+        return $this->options->logo ?? __DIR__ . '/../images/logo.png';
+    }
+
+    /**
+     * Get the header view file.
+     * @uses View $view
+     * @param options->viewHeader
+     * @return string
+     */
+    public function getViewHeader(): string
+    {
+        return $this->options->viewHeader ?? __DIR__ . '/../views/header.blade.php';
+    }
+
+    /**
+     * Get the default header template.
+     * @param options->header
+     * @return string
+     */
+    public function getDefaultHeaderTemplate(): string
+    {
+        return $this->options->header ?? $this->getViewExamplesDir() . 'header.blade.php';
+    }
+
+    /**
+     * Render the header for the PDF.
+     * @uses Mpdf $mpdf
+     *
+     * @param options->header
+     * @param options->logo
+     * @param options->companyName
+     * @param options->headerTitle
+     * @param options->headerSubtitle
+     * @param options->headerTemplate
+     * @return string|null
+     */
+    public function renderHeaderHTML(): ?string
+    {
+        if (isset($this->options->header)) {
+            return $this->options->header;
+        }
+
+        $imagePath = isset($this->options->logo) && file_exists($this->options->logo)
+            ? $this->options->logo
+            : $this->logo();
+
+        $params = [
+            'header' => [
+                'company' => $this->options->companyName ?? 'TURBOTECH CO., LTD.',
+                'title' => $this->options->headerTitle ?? 'Quotation',
+                'subtitle' => $this->options->headerSubtitle ?? 'Generated by Turbotech PDF Template',
+                'orientation' => $this->options->orientation ?? 'L',
+            ],
+            'headerImage' => $imagePath,
+        ];
+
+        $template = 'headers/example';
+        if (
+            isset($this->options->headerTemplate)
+            && file_exists($this->getViewTemplateByName($this->options->headerTemplate))
+        ) {
+            $template = $this->options->headerTemplate;
+        }
+
+        return $this->view($template, array_merge($params, (array)$this->options ?? []));
+    }
+
+
+    /**
+     * Render the body for the PDF.
+     * @param options->body
+     * @param options->bodyTemplate
+     * @return string|null
+     */
+    public function renderBodyHTML(): ?string
+    {
+        if (isset($this->options->body)) {
+            return $this->options->body;
+        }
+
+        $template = 'bodies/example';
+        if (isset($this->options->bodyTemplate) && file_exists($this->getViewTemplateByName($this->options->bodyTemplate))) {
+            $template = $this->options->bodyTemplate;
+        }
+
+        return $this->view($template, (array)$this->options ?? []);
+    }
+
+
+    /**
+     * Render the footer for the PDF.
+     * @uses Mpdf $mpdf
+     * @param options->footer
+     * @param options->footerTemplate
+     * @return void
+     */
+    public function renderFooter($mpdf): void
+    {
+        if (isset($this->options->footer)) {
+            $mpdf->SetHTMLFooter($this->options->footer);
+        }
+
+        $params = [
+            'footer' => [
+                'text' => $this->options->footerText ?? 'Generated by Turbotech PDF Template',
+            ],
+        ];
+
+        $template = 'footers/example';
+        if (
+            isset($this->options->footerTemplate)
+            && file_exists($this->getViewTemplateByName($this->options->footerTemplate))
+        ) {
+            $template = $this->options->footerTemplate;
+        }
+
+        $mpdf->SetHTMLFooter(
+            $this->view($template, array_merge($params, (array)$this->options ?? []))
+        );
+    }
+
+
+    /**
+     * Render the footer HTML.
+     *
+     * @uses View $view
+     * @param options->footer
+     * @param options->footerTemplate
+     * @param options->footerText
+     * @return string
+     */
+    public function renderFooterHTML(): string
+    {
+        if (isset($this->options->footer)) {
+            return $this->options->footer;
+        }
+
+        $template = 'footers/example';
+        if (
+            isset($this->options->footerTemplate)
+            && file_exists($this->getViewTemplateByName($this->options->footerTemplate))
+        ) {
+            $template = $this->options->footerTemplate;
+        }
+
+        return $this->view($template, [
+            'footer' => [
+                'text' => $this->options->footerText ?? 'Generated by Turbotech PDF Template',
+            ],
+        ]);
+    }
+
+    /**
+     * Set watermark text on PDF document.
+     * @uses Mpdf $mpdf
+     *
+     * @param options->showWatermark
+     * @param options->watermarkText
+     * @param options->watermarkTextAlpha
+     * @param options->watermarkFontFamily
+     * @return void
+     */
+    public function setWatermark($mpdf): void
+    {
+        $showWatermarkText = (bool)$this->options->showWatermark ?? false;
+        $markerText = $this->options->watermarkText ?? '';
+        $markerTextAlpha = $this->options->watermarkTextAlpha ?? 0.1;
+        $fontFamily = $this->options->watermarkFontFamily ?? 'khmerosmoullight';
+
+        $mpdf->showWatermarkText = $showWatermarkText;
+        $mpdf->SetWatermarkText($markerText, $markerTextAlpha);
+        $mpdf->watermark_font = $fontFamily;
+    }
+
+    /**
+     * Render view file.
+     * @uses View $view
+     *
+     * @param string $viewName
+     * @param array $data
+     */
+    public function view(string $viewName, array $data = []): string
+    {
+        return View::file("{$this->getViewsDir()}{$viewName}.blade.php", $data)->render();
+    }
+
+    /**
+     * render the PDF document.
+     * @uses Mpdf $mpdf
+     */
+    public function render(): void
+    {
+        $request = $this->request;
+        $rows = $request->rows ?: 0; // Get the number of rows from
+        $orientation = strtoupper($request->orientation) ?: "L"; // Default to Landscape
+        $isLandscape = strtoupper($orientation) === "L" ? true : false;
+        $rowLimit = $isLandscape
+            ? ($request->landscapeRowsLimit ?: 16) // ប្រភេទ Landscape ជា Default ១៦ rows ត្រូវ Break
+            : ($request->portraitRowsLimit ?: 28); // ប្រភេទ Portrait ជា Default ២៨ rows ត្រូវ Break
+
+        $config = $this->config([
+            // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
+            'margin_bottom' => $rows < $rowLimit ? ($isLandscape ? 54 : 10) : 14,
+            'orientation' => $orientation,
+        ]);
+
+        $pdfTitle = $request->title . "_" . date($request->titleDateFormat);
+
+        $mpdf = new Mpdf($config);
+        $mpdf->SetTitle($pdfTitle);
+        $mpdf->SetAuthor($request->author);
+        $mpdf->SetCreator($request->creator);
+        $mpdf->SetDisplayMode('fullpage');
+        $mpdf->SetProtection(['copy', 'print'], '', 'pass');
+        $mpdf->SetCompression(true);
+
+        $header = $this->renderHeaderHTML();
+        $body = $this->renderBodyHTML();
+        $footer = $rows >= $rowLimit ? $this->renderFooterHTML() : $this->renderFooter($mpdf);
+
+        $mpdf->WriteHTML(
+            "<!DOCTYPE html>
+            <html lang='en'>
+            <head>
+                <meta charset='UTF-8'>
+                <title>{$pdfTitle}</title>
+                <style>
+                    .rounded-box {
+                        width: 100%;
+                        height: auto;
+                        line-height: 1.5rem;
+                        text-align: center;
+                        border-radius: 30px;
+                        border: 1px solid #1fa8e0;
+                    }
+                </style>
+            </head>
+            <body>
+                {$header} {$body} {$footer}
+            </body>
+            </html>"
+        );
+
+        $mpdf->Output($pdfTitle . '.pdf', 'I');
+    }
+}
