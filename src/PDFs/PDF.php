@@ -1,6 +1,6 @@
 <?php
 
-namespace Turbotech\PDFTemplate\PDF;
+namespace Turbotech\PDFTemplate\PDFs;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
