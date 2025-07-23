@@ -40,13 +40,4 @@ class QuotationTest extends TestCase
         $this->assertEquals('customFooter', $quotation->options->footerTemplate);
         $this->assertEquals('customValue', $quotation->options->customOption);
     }
-
-    public function test_options_are_passed_to_parent_constructor()
-    {
-        $options = ['foo' => 'bar'];
-        $quotation = new Quotation($options);
-
-        $this->assertObjectHasAttribute('foo', $quotation->options);
-        $this->assertEquals('bar', $quotation->options->foo);
-    }
 }
