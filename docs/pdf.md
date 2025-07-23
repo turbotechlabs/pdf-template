@@ -1,7 +1,5 @@
 ## PDF Class Usage Example
 
-The [`PDF`](src/PDFs/PDF.php) class provides a flexible way to generate PDFs with custom configuration and templates. Below are usage examples that match the tested behaviors in [`PDFTest`](tests/Unit/PDFTest.php):
-
 ### Basic Instantiation and Configuration
 
 ```php
