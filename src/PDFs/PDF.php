@@ -22,12 +22,12 @@ class PDF
             "creator" => $this->request->get('creator', 'SmartERP'),
             "title" => $this->request->get('title', 'PDF'),
             "titleDateFormat" => $this->request->get('titleDateFormat', 'dmY_His'),
-            "orientation" => $this->request->get('orientation', 'L'),
+            "orientation" => $options['orientation'] ?? $this->request->get('orientation', 'L'),
         ]);
 
         $this->options = (object) array_merge(
+            $this->request->all(),
             $options,
-            $this->request->all()
         );
     }
 
@@ -39,7 +39,7 @@ class PDF
      */
     public function config(...$arg): array
     {
-        $request = $this->request;
+        $options = $this->options;
         $defaultConfig = (new ConfigVariables())->getDefaults();
         $fontDirectory = array_merge(
             $defaultConfig['fontDir'],
@@ -49,13 +49,13 @@ class PDF
         $fontData = $defaultFontConfig['fontdata'];
         $configs = [
             'mode' => '+aCJK',
-            "orientation" => $request->orientation ?: "L",
-            "page_size" => $request->page_size ?: "A4",
-            'format' => $request->format ?: "A4",
-            "autoScriptToLang" => true,
-            "autoLangToFont" => false,
-            "tempDir" => $this->getFileTempDir(),
-            "fontDir" => $fontDirectory,
+            'orientation' => $options->orientation ?? 'L',
+            'page_size' => $options->page_size ?? 'A4',
+            'format' => $options->format ?? 'A4',
+            'autoScriptToLang' => true,
+            'autoLangToFont' => false,
+            'tempDir' => $this->getFileTempDir(),
+            'fontDir' => $fontDirectory,
             'fontdata' => $fontData + [
                 'khmerosmoullight' => [
                     'R' => 'Khmer-OS-Muol-Light.ttf',
@@ -82,13 +82,21 @@ class PDF
                     'useOTL' => 0xFF
                 ],
             ],
-            'default_font' => 'georgia',
+            'default_font' => $options->default_font ?? 'georgia',
             'padding_header' => 100,
             'margin_top' => 28.346456693,
             'margin_left' => 15,
             'margin_right' => 15
         ];
-        return array_merge($configs, ...$arg);
+
+        // Merge all arguments as overrides
+        $overrides = [];
+        foreach ($arg as $a) {
+            if (is_array($a)) {
+                $overrides = array_merge($overrides, $a);
+            }
+        }
+        return array_replace($configs, $overrides);
     }
 
     /**
@@ -178,7 +186,7 @@ class PDF
      * Get logo path.
      *
      * @param options->logo
-     * @return object
+     * @return string
      */
     public function logo(): string
     {
