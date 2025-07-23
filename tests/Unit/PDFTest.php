@@ -1,7 +1,7 @@
 <?php
 
 namespace Turbotech\PDFTemplate\PDFs;
-use Mockery;
+
 use Mpdf\Mpdf;
 use Turbotech\PDFTemplate\PDFs\PDF;
 use Turbotech\PDFTemplate\Tests\TestCase;
