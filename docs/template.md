@@ -1,7 +1,5 @@
 ## Template Class Test Case Examples (Old version)
 
-The [`Template`](src/Controllers/Template.php) class provides static methods for PDF configuration and rendering. Below are usage examples that match the tested behaviors in [`TemplateTest`](tests/Unit/TemplateTest.php):
-
 ### Basic Configuration
 
 ```php
