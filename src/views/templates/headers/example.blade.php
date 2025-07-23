@@ -1,39 +1,85 @@
 @php
-    $header = (object) $header;
-    $isLanscape = strtoupper(($header->orientation) ?? "") == 'L';
-    $titleLength = strlen($header->title ?? '');
-
-    $lineHeight = 35;
+    $params = (object) $data;
+    $isLanscape = strtoupper(($data->orientation ?? "")) === 'L';
+    $titleLength = strlen($data->title ?? '');
     $marginTop = -5;
 
-    $companySize = 20;
-    $titleSize = 16;
-    $periodSize = 14;
-
     if (!$isLanscape) {
-        $lineHeight = $titleLength > 35 ? 28 : 35;
         $marginTop = $titleLength > 35 ? -4.8 : -5;
     }
 
+    $logo = $params->headerImage ?? null;
+
+    $company = (object) array_merge(
+        (array)[
+            "name" => "TURBOTECH CO., LTD.",
+            "address" => "N/A",
+            "phone" => "N/A",
+            "email" => "N/A",
+            "website" => "www.turbotech.com.kh"
+        ],
+        (array) ($params->company ?? [])
+    );
+
+    $sales = (object) array_merge(
+        (array)[
+            "name" => "N/A",
+            "phone" => "N/A",
+            "email" => "N/A"
+        ],
+        (array) ($params->sales ?? [])
+    );
+
+    $quotation = (object) array_merge(
+        (array)[
+            "number" => "N/A",
+            "currency" => "USD",
+            "created_date" => null,
+            "expire_date" => null
+        ],
+        (array) ($params->quotation ?? [])
+    );
 @endphp
+
 <table style="width:100%; margin-top: 20rem; margin-bottom: 0.75rem;">
     <tr>
-        <td style="width: 20%; text-align: center;">
-            @if(isset($headerImage) && $headerImage)
-            <img style="width: 190px; margin-top:-80px; margin-left:-5px" src="{{ $headerImage }}" />
+        <td style="text-align: center;">
+            @if(isset($logo) && $logo)
+                <img style="width: 170px; margin-top:-85px;" src="{{ $logo }}" />
             @endif
         </td>
 
-        <td style="width:80%;">
-            <table style="width:100%; text-align:center; margin-right: 10rem; margin-top: {{ $marginTop }}rem;">
-                <tr style="width:100%;text-align:center;">
-                    <td style="text-align:center;width:100%; line-height: 24px;">
-                        <h1 style="font-size:{{ $companySize }}px; font-weight: bold">{{ $header->company ?? '' }}</h1>
-                        <h2 style="font-size:{{ $titleSize }}px; font-weight: bold;">{{ $header->title ?? '' }}</h2>
-                        <h3 style="font-size:{{ $periodSize }}px; font-weight: bold">{{ $header->subtitle ?? '' }}</h3>
+        <td style="width: 750px">
+            <table style="margin-top: {{ $marginTop }}rem; width: 100%; margin-left: 10px; text-align:left; border-collapse: collapse;">
+                <tr>
+                    <td style="min-width: 210px; line-height: 20px">
+                        <h1 style="font-size: 16px; font-weight: bold;">{{ $company->name ?? 'TURBOTECH CO., LTD.' }}</h1>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">Address: {{ str_replace([ "Address", "អាសយដ្ឋាន", " :" ], "", $company->address) }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">
+                            Phone: {{ $company->phone ? preg_replace('/^(\+?855)?\s?(\d{2})\s?(\d{3})\s?(\d{3})$/', '+(855) $2 $3 $4', preg_replace('/[^\d+]/', '', $company->phone)) : 'N/A' }}
+                        </p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">E-mail: {{ $company->email }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">{{ $company->website ?? 'www.turbotech.com.kh' }}</p>
+                    </td>
+                    <td style="min-width: 200px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
+                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->name }}</h1>
+                        <p style="font-size: 14px;  white-space: nowrap;">
+                            Mobile: {{ $sales->phone ? preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', preg_replace('/\D/', '', $sales->phone)) : 'N/A' }}
+                        </p>
+                        <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->email }}</p>
+                    </td>
+                    <td style="width: 120px; text-align: left; line-height: 20px; white-space: nowrap;">
+                        <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $quotation->number}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $quotation->currency}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $quotation->created_date ? date("d/m/Y", strtotime($quotation->created_date)) : 'N/A' }}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Expire Date: {{ $quotation->expire_date ? date("d/m/Y", strtotime($quotation->expire_date)) : 'N/A' }}</p>
                     </td>
                 </tr>
             </table>
         </td>
     </tr>
 </table>
+
+<div class="rounded-box" style="width: 100%; font-size: 12px; font-weight: bold; margin-bottom: 1rem;">
+    {{ strtoupper($params->title ?? 'Quotation') }}
+</div>
