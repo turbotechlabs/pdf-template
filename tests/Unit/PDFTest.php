@@ -20,18 +20,25 @@ class PDFTest extends TestCase
         $config = $pdf->config();
 
         $this->assertIsArray($config);
-        $this->assertEquals('L', $config['orientation']);
+        $this->assertEquals('P', $config['orientation']); // PDF.php default is 'P'
         $this->assertEquals('A4', $config['format']);
         $this->assertEquals('georgia', $config['default_font']);
         $this->assertStringContainsString('temp/pdf', $config['tempDir']);
+        $this->assertEquals('+aCJK', $config['mode']);
+        $this->assertTrue($config['autoScriptToLang']);
+        $this->assertFalse($config['autoLangToFont']);
+        $this->assertEquals(100, $config['padding_header']);
+        $this->assertEquals(28.346456693, $config['margin_top']);
+        $this->assertEquals(15, $config['margin_left']);
+        $this->assertEquals(15, $config['margin_right']);
     }
 
     public function test_config_can_override_values()
     {
-        $pdf = new PDF(['orientation' => 'P', 'format' => 'A5', 'default_font' => 'timenewroman']);
+        $pdf = new PDF(['orientation' => 'L', 'format' => 'A5', 'default_font' => 'timenewroman']);
         $config = $pdf->config();
 
-        $this->assertEquals('P', $config['orientation']);
+        $this->assertEquals('L', $config['orientation']);
         $this->assertEquals('A5', $config['format']);
         $this->assertEquals('timenewroman', $config['default_font']);
     }
@@ -61,10 +68,13 @@ class PDFTest extends TestCase
     public function test_getFontDir_returns_default_or_custom()
     {
         $pdf = new PDF();
-        $this->assertStringContainsString('fonts', $pdf->getFontDir());
+        $dirs = $pdf->getFontDir();
+        $this->assertIsArray($dirs);
+        $this->assertStringContainsString('fonts', $dirs[0]);
 
         $custom = new PDF(['fontDir' => '/custom/fonts']);
-        $this->assertEquals('/custom/fonts', $custom->getFontDir());
+        $dirsCustom = $custom->getFontDir();
+        $this->assertEquals(['/custom/fonts'], $dirsCustom);
     }
 
     public function test_getImageDir_returns_default_or_custom()
@@ -85,12 +95,20 @@ class PDFTest extends TestCase
         $this->assertEquals('/custom/views', $custom->getViewsDir());
     }
 
-    public function test_getViewTemplateByName_returns_correct_path()
+    public function test_getViewTemplatesDir_and_getViewTemplateByName()
     {
         $pdf = new PDF();
         $name = 'invoice';
         $expected = $pdf->getViewTemplatesDir() . 'invoice.blade.php';
         $this->assertEquals($expected, $pdf->getViewTemplateByName($name));
+    }
+
+    public function test_getViewExamplesDir_and_getViewExamplesByName()
+    {
+        $pdf = new PDF();
+        $name = 'sample';
+        $expected = $pdf->getViewExamplesDir() . 'sample.blade.php';
+        $this->assertEquals($expected, $pdf->getViewExamplesByName($name));
     }
 
     public function test_logo_returns_default_or_custom()

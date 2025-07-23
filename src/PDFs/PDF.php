@@ -16,7 +16,7 @@ class PDF
     public function __construct(array $options = [])
     {
         $this->request = new Request();
-        $this->options = (object) array_merge(
+        $this->options = (object) array_replace(
             ["orientation" => $this->request->get('o', $this->request->get('orientation', 'P')),],
             $this->request->all(),
             $options,
@@ -90,8 +90,10 @@ class PDF
         }
         $data = array_replace(
             $configs,
+            ["orientation" => strtoupper(
+                $overrides->o ?? $this->options->o ?? "P"
+            )],
             (array)$options,
-            ["orientation" => strtoupper($overrides->o ?? 'P')],
             (array)$overrides
         );
 
