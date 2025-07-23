@@ -7,7 +7,7 @@ class Invoice extends PDF
     public object $options;
 
     public string $headerTemplate = 'invoice';
-    public string $bodyTemplate = 'example';
+    public string $bodyTemplate = 'invoice';
     public string $footerTemplate = 'invoice';
 
     /**
