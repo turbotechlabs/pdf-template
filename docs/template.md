@@ -68,4 +68,4 @@ $config = Template::config();
 echo $config['tempDir']; // Contains 'temp/pdf'
 ```
 
-See [`TemplateTest`](../tests/Unit/TemplateTest.php) for more tested scenarios
+See [`TemplateTest`](https://github.com/turbotechlabs/pdf-template/blob/master/tests/Unit/TemplateTest.php) for more tested scenarios

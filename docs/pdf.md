@@ -135,4 +135,4 @@ $pdf->setWatermark($mpdf);
 // $mpdf->watermark_font === 'timenewroman'
 ```
 
-See [`PDFTest`](../tests/Unit/PDFTest.php) for more tested
+See [`PDFTest`](https://github.com/turbotechlabs/pdf-template/blob/master/tests/Unit/PDFTest.php) for more tested
