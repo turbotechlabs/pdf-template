@@ -54,23 +54,23 @@
                 <tr>
                     <td style="min-width: 210px; line-height: 20px">
                         <h1 style="font-size: 16px; font-weight: bold;">{{ $company->name ?? 'TURBOTECH CO., LTD.' }}</h1>
-                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">Address: {{ str_replace([ "Address", "អាសយដ្ឋាន", " :" ], "", $company->address) }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">Address: {{ str_replace([ "Address", "អាសយដ្ឋាន", " :" ], "", $company->address ?? "N/A") }}</p>
                         <p style="font-size: 14px; font-family: 'ttstandinvoice;">
                             Phone: {{ $company->phone ? preg_replace('/^(\+?855)?\s?(\d{2})\s?(\d{3})\s?(\d{3})$/', '+(855) $2 $3 $4', preg_replace('/[^\d+]/', '', $company->phone)) : 'N/A' }}
                         </p>
-                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">E-mail: {{ $company->email }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">E-mail: {{ $company->email ?? "N/A" }}</p>
                         <p style="font-size: 14px; font-family: 'ttstandinvoice;">{{ $company->website ?? 'www.turbotech.com.kh' }}</p>
                     </td>
                     <td style="min-width: 200px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
-                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->name }}</h1>
+                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->name ?? "N/A" }}</h1>
                         <p style="font-size: 14px;  white-space: nowrap;">
                             Mobile: {{ $sales->phone ? preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', preg_replace('/\D/', '', $sales->phone)) : 'N/A' }}
                         </p>
-                        <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->email }}</p>
+                        <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->email ?? "N/A" }}</p>
                     </td>
                     <td style="width: 120px; text-align: left; line-height: 20px; white-space: nowrap;">
-                        <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $quotation->number}}</p>
-                        <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $quotation->currency}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $quotation->number ?? "N/A"}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $quotation->currency ?? "USD"}}</p>
                         <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $quotation->created_date ? date("d/m/Y", strtotime($quotation->created_date)) : 'N/A' }}</p>
                         <p style="font-size: 14px; white-space: nowrap;">Expire Date: {{ $quotation->expire_date ? date("d/m/Y", strtotime($quotation->expire_date)) : 'N/A' }}</p>
                     </td>
