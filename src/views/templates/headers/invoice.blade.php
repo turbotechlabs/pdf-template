@@ -23,21 +23,21 @@
 
     $sales = (object) array_merge(
         (array)[
-            "name" => "N/A",
-            "phone" => "N/A",
-            "email" => "N/A"
+            "seller_name" => "N/A",
+            "seller_phone" => "N/A",
+            "seller_email" => "N/A"
         ],
         (array) ($params->sales ?? [])
     );
 
-    $quotation = (object) array_merge(
+    $invoice = (object) array_merge(
         (array)[
             "number" => "N/A",
             "currency" => "USD",
             "created_date" => null,
             "expire_date" => null
         ],
-        (array) ($params->quotation ?? [])
+        (array) ($params->invoice ?? [])
     );
 @endphp
 
@@ -62,17 +62,17 @@
                         <p style="font-size: 14px; font-family: 'ttstandinvoice;">{{ $company->website ?? 'www.turbotech.com.kh' }}</p>
                     </td>
                     <td style="min-width: 200px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
-                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->name ?? "N/A" }}</h1>
+                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->seller_name ?? "N/A" }}</h1>
                         <p style="font-size: 14px;  white-space: nowrap;">
-                            Mobile: {{ $sales->phone ? preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', preg_replace('/\D/', '', $sales->phone)) : 'N/A' }}
+                            Mobile: {{ $sales->seller_phone ? preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', preg_replace('/\D/', '', $sales->seller_phone)) : 'N/A' }}
                         </p>
-                        <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->email ?? "N/A" }}</p>
+                        <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->seller_email ?? "N/A" }}</p>
                     </td>
                     <td style="width: 120px; text-align: left; line-height: 20px; white-space: nowrap;">
-                        <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $quotation->number ?? "N/A"}}</p>
-                        <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $quotation->currency ?? "USD"}}</p>
-                        <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $quotation->created_date ? date("d/m/Y", strtotime($quotation->created_date)) : 'N/A' }}</p>
-                        <p style="font-size: 14px; white-space: nowrap;">Expire Date: {{ $quotation->expire_date ? date("d/m/Y", strtotime($quotation->expire_date)) : 'N/A' }}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $invoice->number ?? "N/A"}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $invoice->currency ?? "USD"}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $invoice->created_date ? date("d/m/Y", strtotime($invoice->created_date)) : 'N/A' }}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Expire Date: {{ $invoice->expire_date ? date("d/m/Y", strtotime($invoice->expire_date)) : 'N/A' }}</p>
                     </td>
                 </tr>
             </table>
