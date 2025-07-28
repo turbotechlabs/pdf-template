@@ -292,6 +292,7 @@ class PDF
     {
         if (isset($this->options->footer)) {
             $mpdf->SetHTMLFooter($this->options->footer);
+            return;
         }
 
         $params = [
