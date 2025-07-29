@@ -1,8 +1,8 @@
 <?php
 
-namespace ${namespace}$;
+namespace {_namespace_};
 
-class ${name}$ {
+class {_name_} {
     /**
      * Index method for the controller.
      *
