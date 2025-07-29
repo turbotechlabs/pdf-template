@@ -3,6 +3,7 @@
     "description": "A Laravel package for creating PDF documents using mPDF with Khmer language support",
     "type": "library",
     "license": "MIT",
+    "version": "1.0.11-beta",
     "require": {
         "php": "^7.4|^8.0",
         "mpdf/mpdf": "^8.0",
