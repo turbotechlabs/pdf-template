@@ -33,7 +33,9 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "make-pdf": "php src/Scripts/MakePDF.php",
+        "make-controller": "php src/Scripts/MakeController.php"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

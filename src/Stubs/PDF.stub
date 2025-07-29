@@ -1,0 +1,27 @@
+<?php
+
+namespace ${namespace}$;
+
+class ${name}$ extends PDF
+{
+    public object $options;
+
+    public string $headerTemplate = '${name_lower}$';
+    public string $bodyTemplate = 'example';
+    public string $footerTemplate = '${name_lower}$';
+
+    /**
+     * ${name}$ constructor.
+     *
+     * @param array $options
+     */
+    public function __construct(?array $options = [])
+    {
+        $this->options = (object)$options;
+        $this->options->headerTemplate = $this->options->headerTemplate ?? $this->headerTemplate;
+        $this->options->bodyTemplate = $this->options->bodyTemplate ?? $this->bodyTemplate;
+        $this->options->footerTemplate = $this->options->footerTemplate ?? $this->footerTemplate;
+
+        parent::__construct((array)$this->options);
+    }
+}
