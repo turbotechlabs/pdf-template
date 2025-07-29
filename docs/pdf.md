@@ -1,6 +1,6 @@
 ## PDF Class Usage Example
 
-### Required (v1.0.9)
+### Required (^v1.0.9)
 
 ### Basic Instantiation and Configuration
 

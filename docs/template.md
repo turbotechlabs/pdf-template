@@ -1,6 +1,6 @@
 ## Template Class Test Case Examples (Old version)
 
-### Required (v1.0.5)
+### Required (^v1.0.5)
 
 ### Basic Configuration
 
