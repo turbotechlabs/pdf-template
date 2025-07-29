@@ -10,8 +10,12 @@ Creates a new PDF class in `src/PDFs/` and generates corresponding Blade view te
 
 **Usage:**
 ```sh
-composer make-pdf PDFName
+composer make-pdf PDFName --[flags]
 ```
+>    **Flags:**
+>   `--views`, `--with-views`, `-wv`      Create PDF with view templates`
+
+
 
 **Example:**
 ```sh
@@ -20,7 +24,7 @@ composer make-pdf Invoice
 
 **What it does:**
 - Creates `src/PDFs/Invoice.php`
-- Creates:
+- Creates if set options  `--views`, `--with-views`, `-wv`:
   - `src/views/templates/headers/Invoice.blade.php`
   - `src/views/templates/bodies/Invoice.blade.php`
   - `src/views/templates/footers/Invoice.blade.php`
