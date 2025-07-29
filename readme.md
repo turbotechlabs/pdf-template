@@ -77,21 +77,41 @@ You can install the PDF Template package via [Packagist](https://packagist.org/p
 
 ### 1. Require the package via Composer
 
+Run the following command in your project root:
+
 ```bash
 composer require smarterp-dev/pdf-template
 ```
 
 ### 2. Publish the package views (optional)
 
-If you want to customize the PDF templates, publish the views to your Laravel application's resources directory:
+If you want to customize the PDF templates, you can publish the package's views to your Laravel application's resources directory:
 
 ```bash
-php artisan vendor:publish --tag=pdf-template-views
+php artisan vendor:publish --tag=views
 ```
 
-This will copy the package views to `resources/views/vendor/pdf-template`.
+This will copy the package views to `resources/views/vendor/smarterp-dev`.
+
+To publish only the template views:
+
+```bash
+php artisan vendor:publish --tag=view-templates
+```
+
+This will copy the template views to `resources/views/vendor/smarterp-dev/templates`.
+
+To publish example template views:
+
+```bash
+php artisan vendor:publish --tag=view-examples
+```
+
+This will copy example templates to `resources/views/vendor/smarterp-dev/templates/examples`.
 
 ### 3. Create the required temporary directory for mPDF
+
+mPDF requires a writable temporary directory. Create it with:
 
 ```bash
 mkdir -p temp/pdf
@@ -101,9 +121,9 @@ mkdir -p temp/pdf
 
 The package will automatically register its service provider. No manual configuration is required for basic usage.
 
-### 5. Usage
+### 5. Ready to Use
 
-Refer to [docs/pdf.md](docs/pdf.md) and [docs/template.md](docs/template.md) for usage examples and API documentation.
+You can now use the package in your Laravel application. For usage examples and API documentation, refer to [docs/pdf.md](docs/pdf.md) and [docs/template.md](docs/template.md)
 
 
 ## License
