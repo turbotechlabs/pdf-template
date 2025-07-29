@@ -1,8 +1,8 @@
 <?php
 
-namespace ${namespace}$;
+namespace {_namespace_};
 
-class ${name}$ extends PDF
+class {_name_} extends PDF
 {
     public object $options;
 
@@ -11,7 +11,7 @@ class ${name}$ extends PDF
     public string $footerTemplate = '${name_lower}$';
 
     /**
-     * ${name}$ constructor.
+     * {_name_} constructor.
      *
      * @param array $options
      */
