@@ -308,7 +308,6 @@ class PDF
         }
 
         $data = (object)array_merge($params, (array)$this->options ?? []);
-
         $mpdf->SetHTMLFooter(
             $this->view($template, compact('data'))
         );
