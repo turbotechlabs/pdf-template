@@ -140,14 +140,12 @@ class Template
      * @param string|null $footer Optional HTML footer content. If null, uses default footer template
      * @return void
      */
-    public static function setFooter($mpdf, $footer = null)
+    public static function setFooter($mpdf, $footer = null, $options = [])
     {
-        $request = new Request();
-        $isLandscape = $request->orientation == "L" ? true : false;
         if ($footer) {
             $mpdf->SetHTMLFooter($footer);
         } else {
-            $mpdf->SetHTMLFooter(self::view(self::$views['footer'], ['isLandscape' => $isLandscape]));
+            $mpdf->SetHTMLFooter(self::view(self::$views['footer'], $options));
         }
     }
 
@@ -318,15 +316,24 @@ class Template
             'headerImage' => $headerImage
         ]);
 
+        $footerOptions = [
+            'isLandscape' => $isLandscape,
+            'showPreparedBy' => $request->showPreparedBy ?? true,
+            'showCheckedBy' => $request->showCheckedBy ?? true,
+            'showVerifiedBy' => $request->showVerifiedBy ?? false,
+            'showApprovedBy' => $request->showApprovedBy ?? true,
+        ];
+
+
         $body = $request->body ?: "";
         $footer = $rows >= $rowLimit
-            ? self::view(self::$views['footer'], ['isLandscape' => $isLandscape])
+            ? self::view(self::$views['footer'], $footerOptions)
             : '';
         $mpdf->WriteHTML($header . $body . $footer);
 
         if ($rows < $rowLimit) {
             // float footer
-            self::setFooter($mpdf);
+            self::setFooter($mpdf, null, $footerOptions);
         }
 
         $mpdf->Output($pdfTitle . '.pdf', 'I');
