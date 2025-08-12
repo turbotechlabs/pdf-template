@@ -48,7 +48,7 @@
 
             @if ($sign->show == 1)
                 <td style="text-align: center; padding: {{ $totalSignatures < 4 ? '3' : '0' }}rem;">
-                    <h3 style="font-size: 12px;"> Prepared By </h3>
+                    <h3 style="font-size: 12px;"> {{ $sign->title ?? '' }} </h3>
                     <table style="width: 100%; text-align: left; margin-top: 6rem; margin-left: {{ $marginLeft }}rem; font-family: 'ttstandinvoice';">
                         <tr>
                             <td style="width: 5rem;">Name :</td>
