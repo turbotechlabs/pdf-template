@@ -145,7 +145,10 @@ class Template
         if ($footer) {
             $mpdf->SetHTMLFooter($footer);
         } else {
-            $mpdf->SetHTMLFooter(self::view(self::$views['footer'], $options));
+            $mpdf->SetHTMLFooter(
+                self::view(self::$views['footer'], $options) .
+                    "<div style='text-align: center; font-size: 11px;'> {PAGENO}</div>"
+            );
         }
     }
 
@@ -249,6 +252,11 @@ class Template
         $mpdf->Output($pdfTitle . '.pdf', 'I');
     }
 
+
+    public static function header($options = []) {
+        return self::view(self::$views['header'], $options);
+    }
+
     /**
      * Generate a PDF document using ERP template settings.
      *
@@ -277,9 +285,7 @@ class Template
         $request = new Request();
 
         // អនុញ្ញាតឲ្យកំណត់ arguments បន្ថែមតាមរយៈ $args
-        $request->merge(
-            array_merge($request->all(), ...$args)
-        );
+        $request->merge( array_merge($request->all(), ...$args) );
         $rows = $request->rows ?: 14;
         $title = $request->header_title ?: 'PDF';
         $headerImage = $request->input('header_image', self::$imageDir . self::$defaultHeaderImage);
@@ -292,6 +298,7 @@ class Template
         $config = self::config([
             // Configure​ គម្លាតផ្នែកខាងក្រោមនៃ PDF សម្រាប់លក្ខខណ្ឌ Landscape និង Portrait
             'margin_bottom' => $rows < $rowLimit ? ($isLandscape ? 54 : 10) : 14,
+            'margin_top' => $isLandscape ? 45 : 40,
             'orientation' => $orentation,
         ]);
 
@@ -306,15 +313,17 @@ class Template
         $mpdf->SetCompression(true);
 
         // Header
-        $header = self::view(self::$views['header'], [
+        $options = [
             'header' => (object)[
                 'company' => $request->input('header_company', 'TURBOTECH CO.,LTD'),
                 'title' => $request->input('header_title'),
                 'period' => $request->input('sub_header_title'),
                 'orientation' => $orentation,
             ],
-            'headerImage' => $headerImage
-        ]);
+            'headerImage' => $headerImage,
+            'hiddenLogo' => true
+        ];
+        $mpdf->SetHTMLHeader(self::header($options));
 
         $footerOptions = [
             'isLandscape' => $isLandscape,
@@ -324,18 +333,18 @@ class Template
             'showApprovedBy' => $request->showApprovedBy ?? true,
         ];
 
-
         $body = $request->body ?: "";
-        $footer = $rows >= $rowLimit
-            ? self::view(self::$views['footer'], $footerOptions)
-            : '';
-        $mpdf->WriteHTML($header . $body . $footer);
+        $footer = $rows >= $rowLimit ? self::view(self::$views['footer'], $footerOptions) : '';
+        $mpdf->SetHTMLFooter("<div style='text-align: center; font-size: 11px;'> {PAGENO}</div>");
+
+        $options['hiddenLogo'] = false;
+        $header = self::view(self::$views['header'], $options);
+        $mpdf->WriteHTML($header. $body . $footer);
 
         if ($rows < $rowLimit) {
             // float footer
             self::setFooter($mpdf, null, $footerOptions);
         }
-
         $mpdf->Output($pdfTitle . '.pdf', 'I');
     }
 }
