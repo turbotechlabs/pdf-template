@@ -11,32 +11,17 @@
     $logo = $params->headerImage ?? null;
 
     $company = (object) array_merge(
-        (array)[
-            "name" => "TURBOTECH CO., LTD.",
-            "address" => "N/A",
-            "phone" => "N/A",
-            "email" => "N/A",
-            "website" => "www.turbotech.com.kh"
-        ],
+        (array)[ "name" => "TURBOTECH CO., LTD.", "address" => "N/A", "phone" => "N/A", "email" => "N/A", "website" => "www.turbotech.com.kh" ],
         (array) ($params->company ?? [])
     );
 
     $sales = (object) array_merge(
-        (array)[
-            "name" => "N/A",
-            "phone" => "N/A",
-            "email" => "N/A"
-        ],
+        (array)[ "name" => "N/A", "phone" => "N/A", "email" => "N/A" ],
         (array) ($params->sales ?? [])
     );
 
     $quotation = (object) array_merge(
-        (array)[
-            "number" => "N/A",
-            "currency" => "USD",
-            "created_date" => null,
-            "expire_date" => null
-        ],
+        (array)[ "number" => "N/A", "currency" => "USD", "created_date" => null, "expire_date" => null ],
         (array) ($params->quotation ?? [])
     );
 @endphp
@@ -64,7 +49,17 @@
                     <td style="min-width: 200px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
                         <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->name ?? "N/A" }}</h1>
                         <p style="font-size: 14px;  white-space: nowrap;">
-                            Mobile: {{ $sales->phone ? preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', preg_replace('/\D/', '', $sales->phone)) : 'N/A' }}
+                            @php
+                                $digits = preg_replace('/\D/', '', $sales->phone ?? "");
+                                if (strlen($digits) === 9) {
+                                    $formattedPhone = preg_replace('/^(\d{3})(\d{3})(\d{3})$/', '$1 $2 $3', $digits);
+                                } elseif (strlen($digits) === 10) {
+                                    $formattedPhone = preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', $digits);
+                                } else {
+                                    $formattedPhone = $digits;
+                                }
+                            @endphp
+                            Mobile: {{ $formattedPhone ?? 'N/A' }}
                         </p>
                         <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->email ?? "N/A" }}</p>
                     </td>
