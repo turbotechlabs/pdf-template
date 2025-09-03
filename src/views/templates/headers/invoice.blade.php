@@ -11,32 +11,17 @@
     $logo = $params->headerImage ?? null;
 
     $company = (object) array_merge(
-        (array)[
-            "name" => "TURBOTECH CO., LTD.",
-            "address" => "N/A",
-            "phone" => "N/A",
-            "email" => "N/A",
-            "website" => "www.turbotech.com.kh"
-        ],
+        (array)[ "name" => "TURBOTECH CO., LTD.","address" => "N/A","phone" => "N/A","email" => "N/A","website" => "www.turbotech.com.kh" ],
         (array) ($params->company ?? [])
     );
 
     $sales = (object) array_merge(
-        (array)[
-            "seller_name" => "N/A",
-            "seller_phone" => "N/A",
-            "seller_email" => "N/A"
-        ],
+        (array)[ "seller_name" => "N/A", "seller_phone" => "N/A", "seller_email" => "N/A" ],
         (array) ($params->sales ?? [])
     );
 
     $invoice = (object) array_merge(
-        (array)[
-            "number" => "N/A",
-            "currency" => "USD",
-            "created_date" => null,
-            "expire_date" => null
-        ],
+        (array)[ "number" => "N/A", "currency" => "USD", "create_date" => null, "expire_date" => null ],
         (array) ($params->invoice ?? [])
     );
 @endphp
@@ -64,14 +49,24 @@
                     <td style="min-width: 200px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
                         <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->seller_name ?? "N/A" }}</h1>
                         <p style="font-size: 14px;  white-space: nowrap;">
-                            Mobile: {{ $sales->seller_phone ? preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', preg_replace('/\D/', '', $sales->seller_phone)) : 'N/A' }}
+                            @php
+                                $digits = preg_replace('/\D/', '', $sales->seller_phone ?? "");
+                                if (strlen($digits) === 9) {
+                                    $formattedMobile = preg_replace('/^(\d{3})(\d{3})(\d{3})$/', '$1 $2 $3', $digits);
+                                } elseif (strlen($digits) === 10) {
+                                    $formattedMobile = preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', $digits);
+                                } else {
+                                    $formattedMobile = $digits;
+                                }
+                            @endphp
+                            Mobile: {{ $formattedMobile ?? 'N/A' }}
                         </p>
                         <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->seller_email ?? "N/A" }}</p>
                     </td>
                     <td style="width: 120px; text-align: left; line-height: 20px; white-space: nowrap;">
                         <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $invoice->number ?? "N/A"}}</p>
                         <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $invoice->currency ?? "USD"}}</p>
-                        <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $invoice->created_date ? date("d/m/Y", strtotime($invoice->created_date)) : 'N/A' }}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $invoice->create_date ? date("d/m/Y", strtotime($invoice->create_date)) : 'N/A' }}</p>
                         <p style="font-size: 14px; white-space: nowrap;">Expire Date: {{ $invoice->expire_date ? date("d/m/Y", strtotime($invoice->expire_date)) : 'N/A' }}</p>
                     </td>
                 </tr>
