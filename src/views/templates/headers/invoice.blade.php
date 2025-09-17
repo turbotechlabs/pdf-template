@@ -9,9 +9,8 @@
     }
 
     $logo = $params->headerImage ?? null;
-
     $company = (object) array_merge(
-        (array)[ "name" => "TURBOTECH CO., LTD.","address" => "N/A","phone" => "N/A","email" => "N/A","website" => "www.turbotech.com.kh" ],
+        (array)[ "name" => "TURBOTECH CO., LTD.", "address" => "N/A", "phone" => "N/A", "email" => "N/A", "website" => "www.turbotech.com.kh" ],
         (array) ($params->company ?? [])
     );
 
@@ -37,17 +36,17 @@
         <td style="width: 750px">
             <table style="margin-top: {{ $marginTop }}rem; width: 100%; margin-left: 10px; text-align:left; border-collapse: collapse;">
                 <tr>
-                    <td style="min-width: 210px; line-height: 20px">
+                    <td style="width: 210px; line-height: 20px">
                         <h1 style="font-size: 16px; font-weight: bold;">{{ $company->name ?? 'TURBOTECH CO., LTD.' }}</h1>
-                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">Address: {{ str_replace([ "Address", "អាសយដ្ឋាន", " :" ], "", $company->address ?? "N/A") }}</p>
-                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice';">Address: {{ str_replace([ "Address", "អាសយដ្ឋាន", " :" ], "", $company->address ?? "N/A") }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice';">
                             Phone: {{ $company->phone ? preg_replace('/^(\+?855)?\s?(\d{2})\s?(\d{3})\s?(\d{3})$/', '+(855) $2 $3 $4', preg_replace('/[^\d+]/', '', $company->phone)) : 'N/A' }}
                         </p>
-                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">E-mail: {{ $company->email ?? "N/A" }}</p>
-                        <p style="font-size: 14px; font-family: 'ttstandinvoice;">{{ $company->website ?? 'www.turbotech.com.kh' }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice';">E-mail: {{ $company->email ?? "N/A" }}</p>
+                        <p style="font-size: 14px; font-family: 'ttstandinvoice';">{{ $company->website ?? 'www.turbotech.com.kh' }}</p>
                     </td>
-                    <td style="min-width: 200px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
-                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ $sales->seller_name ?? "N/A" }}</h1>
+                    <td style="width: 250px; text-align: left; padding-left: 15px; padding-right: 15px; line-height: 20px">
+                        <h1 style="font-size: 14px; font-weight: bold;">Sales Rep: {{ strtoupper($sales->seller_name ?? "N/A") }}</h1>
                         <p style="font-size: 14px;  white-space: nowrap;">
                             @php
                                 $digits = preg_replace('/\D/', '', $sales->seller_phone ?? "");
