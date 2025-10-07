@@ -66,9 +66,9 @@
                         <p style="font-size: 14px;  white-space: nowrap;">E-mail: {{ $sales->seller_email ?? "N/A" }}</p>
                     </td>
                     <td style="width: 120px; text-align: left; line-height: 20px; white-space: nowrap;">
-                        <p style="font-size: 14px; white-space: nowrap;">Quote Number: {{ $invoice->number ?? "N/A"}}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Invoice No: {{ $invoice->number ?? "N/A"}}</p>
                         <p style="font-size: 14px; white-space: nowrap;">Currency Code: {{ $invoice->currency ?? "USD"}}</p>
-                        <p style="font-size: 14px; white-space: nowrap;">Quotation Date: {{ $invoice->create_date ? date("d/m/Y", strtotime($invoice->create_date)) : 'N/A' }}</p>
+                        <p style="font-size: 14px; white-space: nowrap;">Billing Date: {{ $invoice->create_date ? date("d/m/Y", strtotime($invoice->create_date)) : 'N/A' }}</p>
                         <p style="font-size: 14px; white-space: nowrap;">Expire Date: {{ $invoice->expire_date ? date("d/m/Y", strtotime($invoice->expire_date)) : 'N/A' }}</p>
                     </td>
                 </tr>
@@ -78,5 +78,5 @@
 </table>
 
 <div class="rounded-box" style="width: 100%; font-size: 12px; font-weight: bold; margin-bottom: 1rem;">
-    {{ strtoupper($params->title ?? 'Quotation') }}
+    {{ strtoupper($params->title ?? 'Invoice') }}
 </div>
