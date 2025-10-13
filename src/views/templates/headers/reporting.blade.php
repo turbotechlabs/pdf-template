@@ -34,9 +34,9 @@
             <table style="width:100%; text-align:center; margin-right: 10rem; margin-top: {{ $marginTop }}rem;">
                 <tr style="width:100%;text-align:center;">
                     <td style="text-align:center;width:100%; line-height: 24px;">
-                        <h1 style="font-size:{{ $companySize }}px; font-weight: bold">{{ $header->company ?? '' }}</h1>
-                        <h2 style="font-size:{{ $titleSize }}px; font-weight: bold;">{{ $header->title ?? '' }}</h2>
-                        <h3 style="font-size:{{ $periodSize }}px; font-weight: bold">{{ $header->period ?? '' }}</h3>
+                        <h1 style="font-size:{{ $companySize }}px; font-weight: bold;">{!! $header->company ?? '' !!}</h1>
+                        <h2 style="font-size:{{ $titleSize }}px; font-weight: bold;">{!! $header->title ?? '' !!}</h2>
+                        <h3 style="font-size:{{ $periodSize }}px; font-weight: bold;">{!! $header->period ?? '' !!}</h3>
                     </td>
                 </tr>
             </table>
