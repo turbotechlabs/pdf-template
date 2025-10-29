@@ -407,9 +407,6 @@ class PDF
             ? $this->renderFooterHTML()
             : '';
 
-        if ($rows < $rowLimit) {
-            $this->renderFooter($mpdf);
-        }
 
         $mpdf->WriteHTML(
             "<!DOCTYPE html>
@@ -433,6 +430,11 @@ class PDF
             </body>
             </html>"
         );
+
+
+        if ($rows < $rowLimit) {
+            $this->renderFooter($mpdf);
+        }
 
         $mpdf->Output($pdfTitle . '.pdf', 'I');
     }
