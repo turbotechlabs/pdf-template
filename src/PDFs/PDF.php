@@ -380,9 +380,10 @@ class PDF
         $rows = $options->rows ?? 0; // Get the number of rows from options
         $orientation = strtoupper($options->orientation ?? "P"); // Default to Portrait
         $isLandscape = $orientation === "L";
+        $hasImage = $options->hasImage ?? false;
         $rowLimit = $isLandscape
             ? ($options->landscapeRowsLimit ?? 16) // Landscape default 16 rows
-            : ($options->portraitRowsLimit ?? 28); // Portrait default 28 rows
+            : ($hasImage ? 8 : ($options->portraitRowsLimit ?? 28)); // Portrait default 28 rows
 
         $config = $this->config([
             // Configure margin_bottom for Landscape and Portrait
@@ -404,9 +405,8 @@ class PDF
         $body = $this->renderBodyHTML();
 
         $footer = $rows >= $rowLimit
-            ? $this->renderFooterHTML()
+            ? !$hasImage ? $this->renderFooterHTML() : ''
             : '';
-
 
         $mpdf->WriteHTML(
             "<!DOCTYPE html>
@@ -426,13 +426,13 @@ class PDF
                 </style>
             </head>
             <body>
-                {$header} {$body} {$footer}
+                {$header} {$body}".($hasImage ? "<div style='height: 8rem;'></div>" : "")."{$footer}
             </body>
             </html>"
         );
 
 
-        if ($rows < $rowLimit) {
+        if ($rows < $rowLimit || $hasImage) {
             $this->renderFooter($mpdf);
         }
 
