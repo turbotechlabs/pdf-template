@@ -405,7 +405,7 @@ class PDF
         $body = $this->renderBodyHTML();
 
         $footer = $rows >= $rowLimit
-            ? !$hasImage ? $this->renderFooterHTML() : ''
+            ? (!$hasImage ? $this->renderFooterHTML() : '')
             : '';
 
         $mpdf->WriteHTML(
@@ -434,6 +434,10 @@ class PDF
 
         if ($rows < $rowLimit || $hasImage) {
             $this->renderFooter($mpdf);
+        }
+
+        if ($options->showWatermark ?? false) {
+            $this->setWatermark($mpdf);
         }
 
         $mpdf->Output($pdfTitle . '.pdf', 'I');
